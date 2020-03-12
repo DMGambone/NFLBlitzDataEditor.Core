@@ -1,5 +1,16 @@
-# NFL Blitz 2k Data Editor
+# NFL Blitz Data Editor
 The NFL Blitz 2000 Data Editor is a utility that allows the user to update their Midway NFL Blitz 2000 Arcade version.  This project is very much a work in progress.
+
+## How to get started
+NFL Blitz Data Editor is a .NET Core based tool.  In order to compile the NFL Blitz Data Editor, you will need the .NET Core 3.1 (or greater) sdk.
+
+To get started, simply execute the following commands:
+```bash
+git clone https://github.com/DMGambone/NFLBlitzDataEditor.git
+cd NFLBlitzDataEditor
+dotnet run
+```
+
 
 The initial goal of the NFL Blitz 2000 Data Editor is as follows:
 - [ ] Updating of NFL Blitz 2000 Arcade data file (i.e.: content that is saved to the hard drive in NFL Blitz)
@@ -68,4 +79,4 @@ A single team's information is stored in a block of data that is 116 bytes long.
 | 112 | 4 | ?? - Points to a 16 or 20 byte section? | `FileOffset7` |
 
 # Acknowledgements
-There is a group of people who have done most of the discover work already.  Once that information is known, building an editor is easy.  Much of what I found out initially was based on code by https://github.com/thompjake and information that was shared on http://NFLBlitzFans.com.  All the contributions of others made the work put into this so far much easier.
+There is a group of people who have done most of the discovery work already.  Once that information is known, building an editor is easy.  Much of what I found out initially was based on code by https://github.com/thompjake and information that was shared on http://NFLBlitzFans.com.  All the contributions of others made the work put into this so far much easier.
