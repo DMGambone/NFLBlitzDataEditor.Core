@@ -1,4 +1,4 @@
-namespace NFLBlitz2kDataEditor.Enums
+namespace NFLBlitzDataEditor.Core.Enums
 {
     public enum PlayerPosition
     {

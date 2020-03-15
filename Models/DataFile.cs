@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace NFLBlitz2kDataEditor.Models
+namespace NFLBlitzDataEditor.Core.Models
 {
     /// <summary>
     /// Information about the contents of an NFL Blitz data file.

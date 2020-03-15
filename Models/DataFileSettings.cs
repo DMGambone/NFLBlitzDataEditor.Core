@@ -1,4 +1,4 @@
-namespace NFLBlitz2kDataEditor.Models
+namespace NFLBlitzDataEditor.Core.Models
 {
     /// <summary>
     /// Information about an NFL data file that is to be read

@@ -1,9 +1,9 @@
 using System.Linq;
 using System.Collections.Generic;
 using System.IO;
-using NFLBlitz2kDataEditor.Models;
+using NFLBlitzDataEditor.Core.Models;
 
-namespace NFLBlitz2kDataEditor.Readers
+namespace NFLBlitzDataEditor.Core.Readers
 {
     public abstract class DataFileReaderBase
     {

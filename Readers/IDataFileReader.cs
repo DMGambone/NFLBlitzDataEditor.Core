@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using NFLBlitz2kDataEditor.Models;
+using NFLBlitzDataEditor.Core.Models;
 
-namespace NFLBlitz2kDataEditor.Readers
+namespace NFLBlitzDataEditor.Core.Readers
 {
     public interface IDataFileReader
     {

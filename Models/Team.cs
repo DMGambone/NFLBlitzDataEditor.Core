@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace NFLBlitz2kDataEditor.Models
+namespace NFLBlitzDataEditor.Core.Models
 {
     public class Team
     {
