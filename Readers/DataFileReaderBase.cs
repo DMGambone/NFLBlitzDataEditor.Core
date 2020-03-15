@@ -2,7 +2,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.IO;
 using NFLBlitzDataEditor.Core.Models;
-using NFLBlitz2kDataEditor.Enums;
+using NFLBlitzDataEditor.Core.Enums;
 
 namespace NFLBlitzDataEditor.Core.Readers
 {

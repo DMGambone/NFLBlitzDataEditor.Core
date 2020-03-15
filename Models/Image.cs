@@ -1,7 +1,7 @@
 using System;
-using NFLBlitz2kDataEditor.Enums;
+using NFLBlitzDataEditor.Core.Enums;
 
-namespace NFLBlitz2kDataEditor.Models
+namespace NFLBlitzDataEditor.Core.Models
 {
     /// <summary>
     /// Represents a single image in NFL Blitz
