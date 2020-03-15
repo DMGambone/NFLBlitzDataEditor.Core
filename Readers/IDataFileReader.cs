@@ -22,5 +22,12 @@ namespace NFLBlitz2kDataEditor.Readers
         /// </summary>
         /// <returns></returns>
         DataFile Read();
+
+        /// <summary>
+        /// Returns the image data located at a location in the file
+        /// </summary>
+        /// <param name="offset">The starting position to read the data</param>
+        /// <returns>An instance of <see cref="Image" />.  If there is no valid image data, null is returned.</returns>
+        public Image ReadImage(long offset);
     }
 }

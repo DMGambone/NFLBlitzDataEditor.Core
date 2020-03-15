@@ -67,9 +67,74 @@ namespace NFLBlitz2kDataEditor
             return stringBuilder.ToString();
         }
 
+        static int FindInArray(int startIndex, byte[] find, byte[] buffer)
+        {
+            int findLength = find.Length;
+            int bufferLength = buffer.Length;
+            int position = startIndex;
+
+            while (position + findLength + 1 < bufferLength)
+            {
+                int offset = 0;
+                bool matched = true;
+
+                while (offset < findLength && matched)
+                {
+                    matched = (find[offset] == buffer[position + offset]);
+                    offset++;
+                }
+
+                if (matched)
+                    return position;
+
+                position++;
+            }
+
+            return -1;
+        }
+
+        static void ExtractImages(string dataFileName, DataFileSettings dataFileSettings)
+        {
+            using (System.IO.Stream stream = System.IO.File.OpenRead(dataFileName))
+            {
+                byte[] findPattern = new byte[] {
+                   0x05, 0x80, 0x00, 0x00
+                    };
+
+                uint count = 1024 * 1024 * 1024;
+                uint position = 0;
+                stream.Seek(position, SeekOrigin.Begin);
+                List<uint> matches = new List<uint>();
+
+                while (position < stream.Length)
+                {
+                    byte[] buffer = new byte[count];
+                    stream.Read(buffer, 0, (int)count);
+
+                    int matchIndex = -1;
+                    while ((matchIndex = FindInArray(matchIndex + 1, findPattern, buffer)) != -1)
+                    {
+                        matches.Add(position + (uint)matchIndex);
+                    }
+
+                    break;
+                }
+
+                IDataFileReader reader = new Blitz2KArcadeDataFileReader(stream, dataFileSettings);
+                foreach (uint match in matches)
+                {
+                    Image image = reader.ReadImage(match);
+                    if (image == null)
+                        continue;
+
+                    Utilities.ImageConverter.SaveAsPNG(image, System.IO.Path.Combine(".\\images", $"{match.ToString("000000000")}.png"));
+                }
+            }
+        }
+
         static void Main(string[] args)
         {
-            string romFileName = @"c:\mame\roms\blitz2k\blitz2k - played.bin";
+            string dataFileName = @"c:\mame\roms\blitz2k\blitz2k - played.bin";
             DataFileSettings dataFileSettings = new DataFileSettings
             {
                 PlayerListOffset = 90483472,
@@ -80,13 +145,13 @@ namespace NFLBlitz2kDataEditor
                 TeamCount = 31
             };
 
-            using (System.IO.Stream stream = System.IO.File.OpenRead(romFileName))
+            using (System.IO.Stream stream = System.IO.File.OpenRead(dataFileName))
             {
-                Blitz2KArcadeDataFileReader reader = new Blitz2KArcadeDataFileReader(stream, dataFileSettings);
+                IDataFileReader reader = new Blitz2KArcadeDataFileReader(stream, dataFileSettings);
                 DataFile dataFile = reader.Read();
 
                 IEnumerable<Team> teams = dataFile.Teams;
-                foreach(Team team in teams)
+                foreach (Team team in teams)
                 {
                     IEnumerable<Player> players = team.Players;
 
@@ -98,6 +163,8 @@ namespace NFLBlitz2kDataEditor
                     }
                 }
             }
+
+            ExtractImages(dataFileName, dataFileSettings);
         }
     }
 }
