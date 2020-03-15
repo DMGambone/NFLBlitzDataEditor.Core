@@ -5,7 +5,7 @@ using System.Text;
 using System.Collections.Generic;
 using NFLBlitz2kDataEditor.Readers;
 using NFLBlitz2kDataEditor.Models;
-using NFLBlitz2kDataEditor.Enums;
+using NFLBlitz2kDataEditor.Extensions;
 
 namespace NFLBlitz2kDataEditor
 {
@@ -31,10 +31,10 @@ namespace NFLBlitz2kDataEditor
         public static string ToString(Team team)
         {
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.AppendFormat("{0} ", team.Name);
+            stringBuilder.AppendFormat("{0, -16} ", team.Name);
             stringBuilder.AppendFormat("| {0} ", team.TeamAbbreviation);
             stringBuilder.AppendFormat("| {0} ", String.Join(' ', team.UnknownRegion1.Select(b => b.ToString("x2")).ToArray()));
-            stringBuilder.AppendFormat("| {0} ", team.CityName);
+            stringBuilder.AppendFormat("| {0, -16} ", team.CityName);
             stringBuilder.AppendFormat("| {0} ", team.CityAbbreviation);
             stringBuilder.AppendFormat("| {0:00} ", team.PassingRating);
             stringBuilder.AppendFormat("| {0:00} ", team.RushingRating);
@@ -60,9 +60,14 @@ namespace NFLBlitz2kDataEditor
             stringBuilder.AppendFormat("| {0:00} ", (byte)player.SkinColor);
             stringBuilder.AppendFormat("| {0:00} ", player.Number);
             stringBuilder.AppendFormat("| {0:00} ", (byte)player.Position);
-            stringBuilder.AppendFormat("| {0:00000000} ", player.UnknownValue2);
+            stringBuilder.AppendFormat("| {0:00} ", player.UnknownValue1);
+            stringBuilder.AppendFormat("| {0:00} ", player.UnknownValue2);
             stringBuilder.AppendFormat("| {0,-16} ", player.LastName);
             stringBuilder.AppendFormat("| {0,-16} ", player.FirstName);
+            stringBuilder.AppendFormat("| {0:0000000000} ", player.UnknownAddr1);
+            stringBuilder.AppendFormat("| {0:0000000000} ", player.UnknownAddr2);
+            foreach(uint value in player.UnknownRegion1)
+                stringBuilder.AppendFormat("| {0:0000000000} ", value);
 
             return stringBuilder.ToString();
         }
@@ -101,23 +106,19 @@ namespace NFLBlitz2kDataEditor
                    0x05, 0x80, 0x00, 0x00
                     };
 
-                uint count = 1024 * 1024 * 1024;
+                uint readBatchSize = 1024 * 1024 * 1024;
                 uint position = 0;
                 stream.Seek(position, SeekOrigin.Begin);
                 List<uint> matches = new List<uint>();
 
-                while (position < stream.Length)
+                //Just focus on the inital 2GB of the data file
+                byte[] buffer = new byte[readBatchSize];
+                stream.Read(buffer, 0, (int)readBatchSize);
+
+                int matchIndex = -1;
+                while ((matchIndex = FindInArray(matchIndex + 1, findPattern, buffer)) != -1)
                 {
-                    byte[] buffer = new byte[count];
-                    stream.Read(buffer, 0, (int)count);
-
-                    int matchIndex = -1;
-                    while ((matchIndex = FindInArray(matchIndex + 1, findPattern, buffer)) != -1)
-                    {
-                        matches.Add(position + (uint)matchIndex);
-                    }
-
-                    break;
+                    matches.Add(position + (uint)matchIndex);
                 }
 
                 IDataFileReader reader = new Blitz2KArcadeDataFileReader(stream, dataFileSettings);
@@ -127,14 +128,14 @@ namespace NFLBlitz2kDataEditor
                     if (image == null)
                         continue;
 
-                    Utilities.ImageConverter.SaveAsPNG(image, System.IO.Path.Combine(".\\images", $"{match.ToString("000000000")}.png"));
+                    image.SaveAsPNG(System.IO.Path.Combine(".\\images", $"{match.ToString("000000000")}.png"));
                 }
             }
         }
 
         static void Main(string[] args)
         {
-            string dataFileName = @"c:\mame\roms\blitz2k\blitz2k - played.bin";
+            string dataFileName = @"c:\mame\roms\blitz2k\blitz2k.bin";
             DataFileSettings dataFileSettings = new DataFileSettings
             {
                 PlayerListOffset = 90483472,
@@ -153,18 +154,17 @@ namespace NFLBlitz2kDataEditor
                 IEnumerable<Team> teams = dataFile.Teams;
                 foreach (Team team in teams)
                 {
-                    IEnumerable<Player> players = team.Players;
-
-                    Console.WriteLine("------------------------------");
                     Console.WriteLine(ToString(team));
-                    foreach(Player player in players)
-                    {
-                        Console.WriteLine(ToString(player));
-                    }
+                    // IEnumerable<Player> players = team.Players;
+                    // foreach (Player player in players)
+                    // {
+                    //     Console.WriteLine(ToString(player));
+                    // }
+                    // Console.WriteLine("------------------------------");
                 }
             }
 
-            ExtractImages(dataFileName, dataFileSettings);
+            //ExtractImages(dataFileName, dataFileSettings);
         }
     }
 }
