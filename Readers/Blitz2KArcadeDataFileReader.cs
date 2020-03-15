@@ -1,13 +1,13 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
-using NFLBlitz2kDataEditor.Models;
-using NFLBlitz2kDataEditor.Enums;
+using NFLBlitzDataEditor.Core.Models;
+using NFLBlitzDataEditor.Core.Enums;
 
 /// <summary>
 /// Data file reader used for the arcade version of NFL Blitz 2000 
 /// </summary>
-namespace NFLBlitz2kDataEditor.Readers
+namespace NFLBlitzDataEditor.Core.Readers
 {
     public class Blitz2KArcadeDataFileReader
     : DataFileReaderBase, IDataFileReader

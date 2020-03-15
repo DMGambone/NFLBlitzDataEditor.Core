@@ -1,4 +1,4 @@
-namespace NFLBlitz2kDataEditor
+namespace NFLBlitzDataEditor.Core
 {
     /// <summary>
     /// The different NFL Blitz versions

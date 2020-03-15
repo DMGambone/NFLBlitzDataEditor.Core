@@ -1,10 +1,10 @@
 using System.Linq;
 using System.Collections.Generic;
 using System.IO;
-using NFLBlitz2kDataEditor.Models;
+using NFLBlitzDataEditor.Core.Models;
 using NFLBlitz2kDataEditor.Enums;
 
-namespace NFLBlitz2kDataEditor.Readers
+namespace NFLBlitzDataEditor.Core.Readers
 {
     public abstract class DataFileReaderBase
     {

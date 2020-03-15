@@ -1,23 +1,15 @@
 # NFL Blitz Data Editor
-The NFL Blitz 2000 Data Editor is a utility that allows the user to update their Midway NFL Blitz 2000 Arcade version.  This project is very much a work in progress.
+The NFL Blitz Data Editor is .NET Standard assembly  that allows the user to update their Midway NFL Blitz Arcade version.  This project is very much a work in progress.
 
-## How to get started
-NFL Blitz Data Editor is a .NET Core based tool.  In order to compile the NFL Blitz Data Editor, you will need the .NET Core 3.1 (or greater) sdk.
-
-To get started, simply execute the following commands:
-```bash
-git clone https://github.com/DMGambone/NFLBlitzDataEditor.git
-cd NFLBlitzDataEditor
-dotnet run
-```
-
-
-The initial goal of the NFL Blitz 2000 Data Editor is as follows:
-- [ ] Updating of NFL Blitz 2000 Arcade data file (i.e.: content that is saved to the hard drive in NFL Blitz)
+# Project Goals
+The initial goal of the NFL Blitz Data Editor is as follows:
 - [ ] Enable the viewing/updating of player information (name, position, number, stats, etc)
 - [ ] Enable the viewing/updating of team information (name, city, team stats)
-- [ ] Enable the viewing/updating of graphics in NFL Blitz 2000
-- [ ] Enable adding additional teams to NFL Blitz 2000 (Currently only contains 31 teams, Houston Texans are missing)
+- [ ] Enable the viewing/updating of graphics in the data file
+- [ ] Enable adding additional teams to the game(Currently only contains 31 teams, Houston Texans are missing).  This may not be possible without updates to the actual ROMs in the game
+
+# Data File Specifications
+While there are significant consistencies between all arcade versions, each version of NFL Blitz does differ a bit.  Currently, only NFL Blitz 2000 is being worked on.
 
 ## NFL Blitz 2k data file layout
 Below are the known regions of an NFL Blitz 2k file.  As more information is gathered, this will be updated
