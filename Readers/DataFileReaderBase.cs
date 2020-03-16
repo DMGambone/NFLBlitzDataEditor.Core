@@ -176,7 +176,7 @@ namespace NFLBlitzDataEditor.Core.Readers
         protected uint ConvertBGRA4444ToUInt32(ushort value)
         {
             byte a4 = (byte)((value >> 12) & 0x0f);
-            byte r4 = (byte)((value >> 8)& 0x0f);
+            byte r4 = (byte)((value >> 8) & 0x0f);
             byte g4 = (byte)((value >> 4) & 0x0f);
             byte b4 = (byte)(value & 0x0f);
 
@@ -190,6 +190,16 @@ namespace NFLBlitzDataEditor.Core.Readers
         }
 
         /// <summary>
+        /// Converts an alpha value to 32bit color
+        /// </summary>
+        /// <param name="value">The alpha value to convert</param>
+        /// <returns>Returns the equivalent RGB32 of the indexed value</returns>
+        protected uint ConvertBitmapMaskToUInt32(byte source)
+        {
+            return (uint)(source << 24);
+        }
+
+        /// <summary>
         /// Converts a UInt16 to an image pixel (RGBA as a UInt32)
         /// </summary>
         /// <param name="source">The UInt16 value to convert to an image pixel</param>
@@ -199,6 +209,7 @@ namespace NFLBlitzDataEditor.Core.Readers
         {
             switch (format)
             {
+                case ImageFormat.BitmapMask: return ConvertBitmapMaskToUInt32((byte)(source & 0xFF));
                 case ImageFormat.BGR565: return ConvertBGR565ToUInt32(source);
                 case ImageFormat.BGRA5551: return ConvertBGRA5551ToUInt32(source);
                 case ImageFormat.BGRA4444: return ConvertBGRA4444ToUInt32(source);
@@ -287,6 +298,31 @@ namespace NFLBlitzDataEditor.Core.Readers
         }
 
         /// <summary>
+        /// Reads a sequence of bytes that represents the image pixel data
+        /// </summary>
+        /// <param name="format">The format of the image data</param>
+        /// <param name="width">The image width</param>
+        /// <param name="height">The image height</param>
+        /// <returns></returns>
+        protected uint[] ReadImageData(ImageFormat format, int width, int height)
+        {
+            if (format == ImageFormat.BitmapMask)
+            {
+                // The data is stored as bytes
+                return _reader.ReadBytes(width * height)
+                            .Select(pixel => ConvertToImagePixel((ushort)pixel, format))
+                            .ToArray();
+            }
+            else
+            {
+                // The data is stored as UInt16 values
+                return ReadAsUInt16Array(_reader, width * height)
+                                .Select(pixel => ConvertToImagePixel(pixel, format))
+                                .ToArray();
+            }
+        }
+
+        /// <summary>
         /// Returns the image data located at a location in the file
         /// </summary>
         /// <param name="offset">The starting position to read the data</param>
@@ -309,9 +345,7 @@ namespace NFLBlitzDataEditor.Core.Readers
                 return null;
 
             ImageFormat format = (ImageFormat)headerData[9];
-            uint[] pixels = ReadAsUInt16Array(_reader, width * height)
-                                .Select(pixel => ConvertToImagePixel(pixel, format))
-                                .ToArray();
+            uint[] pixels = ReadImageData(format, width, height);
 
             return new Image()
             {
