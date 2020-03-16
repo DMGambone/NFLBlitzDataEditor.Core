@@ -4,10 +4,14 @@ namespace NFLBlitzDataEditor.Core.Enums
     {
         BitmapMask = 0x00,
 
+        UknownType08 = 0x08,
+
         BGR565 = 0x0a,
         
         BGRA5551 = 0x0b,
 
         BGRA4444 = 0x0c,
+
+        UknownType0D = 0x0d
     }
 }

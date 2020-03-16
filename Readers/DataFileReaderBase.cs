@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.IO;
@@ -11,7 +12,7 @@ namespace NFLBlitzDataEditor.Core.Readers
         /// <summary>
         /// An instance of a BinaryReader that allows for pulling data from the Blitz data file
         /// </summary>
-        private System.IO.BinaryReader _reader = null;
+        private BinaryReader _reader = null;
 
         /// <summary>
         /// The settings for this particular data file
@@ -23,7 +24,7 @@ namespace NFLBlitzDataEditor.Core.Readers
         /// </summary>
         protected abstract NFLBlitzVersion Version { get; }
 
-        public DataFileReaderBase(System.IO.Stream stream, DataFileSettings settings)
+        public DataFileReaderBase(Stream stream, DataFileSettings settings)
         {
             _reader = new BinaryReader(stream, System.Text.Encoding.ASCII);
             Settings = settings;
@@ -35,7 +36,7 @@ namespace NFLBlitzDataEditor.Core.Readers
         /// <param name="reader">The reader to read the bytes from</param>
         /// <param name="length">The length of the string to read</param>
         /// <returns>A string containing the data that was read.  Any trailing null characters are trimmed.</returns>
-        protected string ReadAsString(System.IO.BinaryReader reader, int length)
+        protected string ReadAsString(BinaryReader reader, int length)
         {
             byte[] bytes = reader.ReadBytes(length);
             string value = System.Text.Encoding.ASCII.GetString(bytes);
@@ -48,7 +49,7 @@ namespace NFLBlitzDataEditor.Core.Readers
         /// <param name="reader">The reader to read the int from</param>
         /// <param name="length">The number of int values to read</param>
         /// <returns>An array of int values.</returns>
-        protected int[] ReadAsInt32Array(System.IO.BinaryReader reader, int length)
+        protected int[] ReadAsInt32Array(BinaryReader reader, int length)
         {
             int[] values = new int[length];
             for (int i = 0; i < length; i++)
@@ -65,7 +66,7 @@ namespace NFLBlitzDataEditor.Core.Readers
         /// <param name="reader">The reader to read the int from</param>
         /// <param name="length">The number of values to read</param>
         /// <returns>An array of unsigned int values.</returns>
-        protected uint[] ReadAsUInt32Array(System.IO.BinaryReader reader, int length)
+        protected uint[] ReadAsUInt32Array(BinaryReader reader, int length)
         {
             uint[] values = new uint[length];
             for (int i = 0; i < length; i++)
@@ -81,7 +82,7 @@ namespace NFLBlitzDataEditor.Core.Readers
         /// </summary>
         /// <param name="reader">The reader to read the bytes from</param>
         /// <returns>A string containing the data that was read.</returns>
-        protected virtual string ReadAsString(System.IO.BinaryReader reader)
+        protected virtual string ReadAsString(BinaryReader reader)
         {
             System.Text.StringBuilder stringBuilder = new System.Text.StringBuilder();
 
@@ -103,7 +104,7 @@ namespace NFLBlitzDataEditor.Core.Readers
         /// <param name="reader">The reader to read the bytes from</param>
         /// <param name="recordSize">The size of the team data block</param>
         /// <returns>An instance of a BinaryReader that can be used to read the team record.</returns>
-        protected System.IO.BinaryReader ReadNextBlock(BinaryReader reader, int recordSize)
+        protected BinaryReader ReadNextBlock(BinaryReader reader, int recordSize)
         {
             byte[] block = reader.ReadBytes(recordSize);
 
@@ -325,12 +326,12 @@ namespace NFLBlitzDataEditor.Core.Readers
         /// <summary>
         /// Returns the image data located at a location in the file
         /// </summary>
-        /// <param name="offset">The starting position to read the data</param>
+        /// <param name="position">The starting position to read the data</param>
         /// <returns>An instance of <see cref="Image" />.  If there is no valid image data, null is returned.</returns>
-        public Image ReadImage(long offset)
+        public Image ReadImage(long position)
         {
             //First grab the first 40 bytes (as UInt32).  This is the header record.
-            _reader.BaseStream.Seek(offset, SeekOrigin.Begin);
+            _reader.BaseStream.Seek(position, SeekOrigin.Begin);
             uint[] headerData = ReadAsUInt32Array(_reader, 10);
 
             //If the first value is not 0x00008005, then it is not a valid image
@@ -340,8 +341,11 @@ namespace NFLBlitzDataEditor.Core.Readers
             //Get the width and height as that's needed to determine how to read the next values
             int width = (int)headerData[4];
             int height = (int)headerData[5];
-            if (width < 1 || width > 1024
-                || height < 1 || height > 1024)
+            if (width < 1 || width > 256
+                || height < 1 || height > 256)
+                return null;
+
+            if (!Enum.IsDefined(typeof(ImageFormat), (int)headerData[9]))
                 return null;
 
             ImageFormat format = (ImageFormat)headerData[9];

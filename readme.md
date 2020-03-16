@@ -16,8 +16,10 @@ Below are the known regions of an NFL Blitz 2k file.  As more information is gat
 
 | Start | End | Purpose |
 |-------|-----|---------|
-| 0 | 90483741 | ?? |
-| 90483742 | 90529103 | Players data block |
+| 0 | 2816003 | ?? |
+| 2816004 | 183660075 | NFL Blitz and NBA Jam images |
+| 183660076 | 90483471 | ?? |
+| 90483472 | 90529103 | Players data block |
 | 90529104 | 90532700 | Team data block |
 | 90532701 | 2149076871 | ?? |
 | 2149032712 | 2149078344 | ?? - Team data block `FileOffset1` points to a location in this range |
@@ -75,9 +77,12 @@ The image in the NFL Blitz file are a basic set of pixels in a specific color fo
 data in a 16-bit block.
 | Id | Format | Description |
 |----|--------|-------------|
+| 00 | BitmapMask? | A single byte value.  Looks to store an alpha value and used to act like a mask |
+| 03 | ?? | |
 | 0a | RGB565 | Red and Blue colors are stored as 5 bit value, Green is stored as a 6 bit color.  There is no Alpha color. |
 | 0b | RGBA1555 | Red, Green, and Blue are stored as 5 bit values, Alpha channel is a single 1 bit value |
 | 0c | RBGA4444 | Red, Green, Blue, and Alpha are stored as a 4 bit value |
+| 0d | ?? | |
 
 ### Image Record
 The image record is variable in size.  It starts off with a 40 byte header followed by the pixel data.
