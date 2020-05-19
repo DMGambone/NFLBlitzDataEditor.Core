@@ -22,15 +22,17 @@ A single player's information is stored in a block of data that is 92 bytes long
 
 | Position | Size (bytes) | Purpose | `Player` Property Name |
 |----------|--------------|---------|---------------|
-| 0 | 28 | ?? - 7 file pointers? | `UnknownRegion1` |
+| 0 | 20 | 5 player stats (Spd, Pwr, QB, WR, Off, Def) | `Stats` |
+| 20 | 4 | Scale, maybe for texture scaling? | `Scale` |
+| 24 | 4 | Unused? It's always 0. |  |
 | 28 | 4 | Player Size (0 = normal, 1 = large) | `Size` |
 | 32 | 4 | Player Skin color (0 = dark, 1 = light) | `SkinColor` |
 | 36 | 4 | Player Number<sup>1</sup> | `Number` |
 | 40 | 4 | Player Position | `Position` |
-| 44 | 4 | ?? - Reserved?  It's always 0. | `UnknownValue1` |
+| 44 | 4 | Unused? It's always 0. |  |
 | 48 | 4 | ?? - Only set for QBs, a file pointer to where player updated stats are saved? | `UnknownAddr1` |
 | 52 | 4 | ?? - Set for non-linement, a file pointer to where player updated stats are saved? | `UnknownAddr2` |
-| 56 | 4 | ?? - Values of 10, 11, 12, 13 are only assigned to QB, WR, RB, or TE players | `UnknownValue2` |
+| 56 | 4 | ?? - Values of 10, 11, 12, 13 are only assigned to QB, WR, RB, or TE players. | `Ancr` |
 | 60 | 16 | Last Name | `LastName` |
 | 76 | 16 | First Name | `FirstName` |
 
@@ -58,3 +60,9 @@ A single team's information is stored in a block of data that is 116 bytes long.
 | 104 | 4 | ?? - Points to a 36 or 1668 (only the Bengals) byte section? | `FileOffset5` |
 | 108 | 4 | ?? - Always 0 | `FileOffset6` |
 | 112 | 4 | ?? - Points to a 16 or 20 byte section? | `FileOffset7` |
+
+## Readers
+Readers used for NFL Blitz 2k Arcade files are located in the `NFLBlitzDataEditor.Core.Readers.Blitz2kArcade` namespace.  These include
+ - `Blitz2kArcadeDataFileReader` (inherits `DataFileReader`): An instance of `IDataFileReader` that is used to read information from the NFL Blitz 2000 Data File
+ - `PlayerRecordReader`: An implementation of `IDataFileRecordReader<Player>` that reads a single player record
+ - `TeamReacordReader`: An implementation of `IDataFileRecordReader<Team>` that reads a single team record

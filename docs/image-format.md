@@ -1,4 +1,4 @@
-## Images
+# Images
 The image in the NFL Blitz file are a basic set of pixels in a specific color format.  These formats represent pixel 
 data in a 16-bit block.
 | Id | Format | Description |
@@ -10,7 +10,7 @@ data in a 16-bit block.
 | 0c | RBGA4444 | Red, Green, Blue, and Alpha are stored as a 4 bit value |
 | 0d | ?? | |
 
-### Image Record
+## Image Record
 The image record is variable in size.  It starts off with a 40 byte header followed by the pixel data.
 
 | Position | Size (bytes) | Purpose | `Image` Property |
@@ -26,3 +26,6 @@ The image record is variable in size.  It starts off with a 40 byte header follo
 | 32 | 4 | ?? | `UnknownValue5` |
 | 36 | 4 | The pixel format used in this image | `ImageFormat` |
 | 40 | `Width` * `Height` * 2 | The actual pixel data | `Data` |
+
+## Record Reader
+Currently, a single class, `ImageRecordReader`, provides functionality around reading image records from a stream.

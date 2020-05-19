@@ -3,6 +3,9 @@ using NFLBlitzDataEditor.Core.Enums;
 
 namespace NFLBlitzDataEditor.Core.Models
 {
+    /// <summary>
+    /// Contains information about a single player
+    /// </summary>
     public class Player
     {
         /// <summary>
@@ -15,6 +18,16 @@ namespace NFLBlitzDataEditor.Core.Models
         /// </summary>
         public string LastName { get; set; }
 
+        /// <summary>
+        /// Player stats?: Spd, Pwr, QB, WR, Off, Def
+        /// </summary>
+        public int[] Stats { get; set; }
+
+        /// <summary>
+        /// Scale of texture?
+        /// </summary>
+        public float Scale { get; internal set; }
+        
         /// <summary>
         /// The player's skin color
         /// </summary>
@@ -43,6 +56,5 @@ namespace NFLBlitzDataEditor.Core.Models
 
         public uint UnknownAddr2 { get; set; }
 
-        public int[] UnknownRegion1 { get; set; }
     }
 }

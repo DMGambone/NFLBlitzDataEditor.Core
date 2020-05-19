@@ -2,6 +2,9 @@ using System.Collections.Generic;
 
 namespace NFLBlitzDataEditor.Core.Models
 {
+    /// <summary>
+    /// Contains information about a single team in NFL Blitz, including the players, images, and sounds associated with the team.
+    /// </summary>
     public class Team
     {
         /// <summary>
@@ -60,9 +63,9 @@ namespace NFLBlitzDataEditor.Core.Models
         public byte[] UnknownRegion1 { get; set; }
 
         /// <summary>
-        /// Points to a 1472 byte section?
+        /// Points to the location of the players for this team
         /// </summary>
-        public uint FileOffset1 { get; set; }
+        public uint PlayersOffset { get; set; }
         /// <summary>
         /// Points to a 48 byte section?
         /// </summary>

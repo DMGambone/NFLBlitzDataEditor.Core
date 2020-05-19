@@ -36,5 +36,11 @@ namespace NFLBlitzDataEditor.Core.Models
         /// The number of players per team
         /// </summary>
         public int PlayersPerTeam { get; set; }
+
+        /// <summary>
+        /// The version of NFL Blitz these settings are for
+        /// </summary>
+        /// <value></value>
+        public NFLBlitzVersion Version { get; internal set; }
     }
 }
