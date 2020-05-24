@@ -20,7 +20,7 @@ namespace NFLBlitzDataEditor.Core.Readers.Blitz2kArcade
         };
 
         public Blitz2kArcadeDataFileReader(Stream stream)
-            : base(stream, Blitz2kArcadeDataFileReader.Settings, new ImageRecordReader(), new PlayerRecordReader(), new TeamRecordReader())
+            : base(stream, Blitz2kArcadeDataFileReader.Settings, new ImageRecordReader(), new PlayerRecordReader(), new TeamRecordReader(), new ImageTableReader())
         {
 
         }
