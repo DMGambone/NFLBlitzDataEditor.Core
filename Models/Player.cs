@@ -49,12 +49,24 @@ namespace NFLBlitzDataEditor.Core.Models
         /// </summary>
         public PlayerPosition Position { get; set; }
 
-        public uint UnknownAddr1 { get; set; }
+        /// <summary>
+        /// Pointer to a player's image (aka: mugshot)
+        /// </summary>
+        public uint MugShotAddress { get; set; }
 
-        public int UnknownValue1 { get; set; }
-        public int UnknownValue2 { get; set; }
+        /// <summary>
+        /// Pointer to the player's name
+        /// </summary>
+        public uint NameAddress { get; set; }
 
-        public uint UnknownAddr2 { get; set; }
+        /// <summary>
+        /// Pointer to a player's name when selected
+        /// </summary>
+        public uint SelectedNameAddress { get; set; }
 
+        /// <summary>
+        /// Identified as "ancr" in NFL Blitz code, but it's purpose is unknown
+        /// </summary>
+        public uint Ancr { get; set; }
     }
 }

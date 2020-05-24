@@ -41,10 +41,10 @@ namespace NFLBlitzDataEditor.Core.Readers.Blitz2kArcade
 
                 player.Position = (PlayerPosition)reader.ReadInt32();
 
-                player.UnknownValue1 = reader.ReadInt32();
-                player.UnknownAddr1 = reader.ReadUInt32();
-                player.UnknownAddr2 = reader.ReadUInt32();
-                player.UnknownValue2 = reader.ReadInt32();
+                player.MugShotAddress = reader.ReadUInt32();
+                player.SelectedNameAddress = reader.ReadUInt32();
+                player.NameAddress = reader.ReadUInt32();
+                player.Ancr = reader.ReadUInt32();
 
                 player.LastName = reader.ReadAsString(16);
                 player.FirstName = reader.ReadAsString(16);
