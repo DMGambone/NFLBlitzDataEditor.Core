@@ -23,7 +23,7 @@ namespace NFLBlitzDataEditor.Core.Readers
         /// <summary>
         /// Reader used to read image records from the data file
         /// </summary>
-        private readonly IDataFileRecordReader<Image> _imageRecordReader;
+        private readonly IDataFileRecordReader<ImageData> _imageRecordReader;
 
         /// <summary>
         /// Reader used to read player records from the data file
@@ -52,7 +52,7 @@ namespace NFLBlitzDataEditor.Core.Readers
             }
         }
 
-        public DataFileReader(Stream stream, DataFileSettings settings, IDataFileRecordReader<Image> imageRecordReader, IDataFileRecordReader<Player> playerRecordReader, IDataFileRecordReader<Team> teamRecordReader, ImageTableReader imageTableReader)
+        public DataFileReader(Stream stream, DataFileSettings settings, IDataFileRecordReader<ImageData> imageRecordReader, IDataFileRecordReader<Player> playerRecordReader, IDataFileRecordReader<Team> teamRecordReader, ImageTableReader imageTableReader)
         {
             _reader = new BinaryReader(stream, System.Text.Encoding.ASCII);
             _imageRecordReader = imageRecordReader;
@@ -151,8 +151,8 @@ namespace NFLBlitzDataEditor.Core.Readers
         /// Returns the image data located at a location in the file
         /// </summary>
         /// <param name="position">The starting position to read the data</param>
-        /// <returns>An instance of <see cref="Image" />.  If there is no valid image data, null is returned.</returns>
-        public Image ReadImage(long position)
+        /// <returns>An instance of <see cref="ImageData" />.  If there is no valid image data, null is returned.</returns>
+        public ImageData ReadImageData(long position)
         {
             _reader.BaseStream.Seek(position, SeekOrigin.Begin);
 
@@ -169,6 +169,19 @@ namespace NFLBlitzDataEditor.Core.Readers
             _reader.BaseStream.Seek(position, SeekOrigin.Begin);
 
             return _imageTableReader.Read(_reader, numberOfEntries);
+        }
+
+        /// <inheritdocs />
+        public Image ReadImage(long imageTableLocation, uint numberOfEntries, long imageLocation)
+        {
+            return new Image()
+            {
+                Info = ReadImageTable(imageTableLocation, numberOfEntries),
+                ImageTableLocation = imageTableLocation,
+                ImageTableSize = numberOfEntries,
+                Data = ReadImageData(imageLocation),
+                ImageDataLocation = imageLocation
+            };
         }
     }
 }

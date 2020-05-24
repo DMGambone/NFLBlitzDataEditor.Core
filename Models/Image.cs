@@ -4,43 +4,33 @@ using NFLBlitzDataEditor.Core.Enums;
 namespace NFLBlitzDataEditor.Core.Models
 {
     /// <summary>
-    /// Represents a single image in NFL Blitz
+    /// Represents a single image file in NFL Blitz, which is often a composite of multiple images
     /// </summary>
     public class Image
     {
         /// <summary>
-        /// A file type or header version indicator?
+        /// The image table containing the breakdown of the NFL Blitz image file
         /// </summary>
-        public uint FileType { get; set; }
-
-        public uint UnknownValue1 { get; set; }
-        public uint UnknownValue2 { get; set; }
-        public uint UnknownValue3 { get; set; }
+        public ImageTable Info { get; set; }
 
         /// <summary>
-        /// The width of the image
+        /// The location within the data file where the image table was located
         /// </summary>
-        public int Width { get; set; }
+        public long ImageTableLocation { get; set; }
 
         /// <summary>
-        /// The height of the image
+        /// The number of entries in the image table
         /// </summary>
-        public int Height { get; set; }
-
-        public uint MipmappingLevel { get; set; }
-
-        public uint UnknownValue4 { get; set; }
-
-        public uint UnknownValue5 { get; set; }
+        public uint ImageTableSize { get; set; }
 
         /// <summary>
-        /// The format the image is in
+        /// Contains the actual image data
         /// </summary>
-        public ImageFormat Format { get; set; }
+        public ImageData Data { get; set; }
 
         /// <summary>
-        /// The image pixels
+        /// The location within data file where the image data was located
         /// </summary>
-        public uint[] Data { get; set; }
+        public long ImageDataLocation { get; set; }
     }
 }

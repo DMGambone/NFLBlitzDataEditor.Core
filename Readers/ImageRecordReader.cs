@@ -11,7 +11,7 @@ namespace NFLBlitzDataEditor.Core.Readers
     /// Used to read an image from a stream of data
     /// </summary>
     public class ImageRecordReader
-        : IDataFileRecordReader<Image>
+        : IDataFileRecordReader<ImageData>
     {
         /// <summary>
         /// Converts a value that represents BGR565 
@@ -129,7 +129,7 @@ namespace NFLBlitzDataEditor.Core.Readers
             }
         }
 
-        public Image Read(BinaryReader reader)
+        public ImageData Read(BinaryReader reader)
         {
             uint[] headerData = reader.ReadAsUInt32Array(10);
 
@@ -150,7 +150,7 @@ namespace NFLBlitzDataEditor.Core.Readers
             ImageFormat format = (ImageFormat)headerData[9];
             uint[] pixels = ReadImageData(format, width, height, reader);
 
-            return new Image()
+            return new ImageData()
             {
                 FileType = headerData[0],
                 UnknownValue1 = headerData[1],

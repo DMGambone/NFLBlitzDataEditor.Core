@@ -27,14 +27,23 @@ namespace NFLBlitzDataEditor.Core.Readers
         /// Returns the image data located at a location in the file
         /// </summary>
         /// <param name="offset">The starting position to read the data</param>
-        /// <returns>An instance of <see cref="Image" />.  If there is no valid image data, null is returned.</returns>
-        Image ReadImage(long offset);
+        /// <returns>An instance of <see cref="ImageData" />.  If there is no valid image data, null is returned.</returns>
+        ImageData ReadImageData(long offset);
 
         /// <summary>
-        /// Returns an instance of <see cref="ImageInfo" /> located at a location in the file
+        /// Returns an instance of <see cref="ImageTable" /> located at a location in the file
         /// </summary>
         /// <param name="position">The starting position to read the data</param>
-        /// <returns>An instance of <see cref="ImageInfo" />.</returns>
+        /// <returns>An instance of <see cref="ImageTable" />.</returns>
         ImageTable ReadImageTable(long position, uint numberOfEntries);
+
+        /// <summary>
+        /// Returns an instance of <see cref="Image" /> for the image table and image specified
+        /// </summary>
+        /// <param name="imageTableLocation">The starting position to read the data for the image table</param>
+        /// <param name="numberOfEntries">The number of entries in the image table</param>
+        /// <param name="imageLocation">The starting position to read the data for the raw image data</param>
+        /// <returns>An instance of <see cref="Image" />.</returns>
+        Image ReadImage(long imageTableLocation, uint numberOfEntries, long imageLocation);
     }
 }
