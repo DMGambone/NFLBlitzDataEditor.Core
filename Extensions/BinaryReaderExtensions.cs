@@ -17,7 +17,7 @@ namespace NFLBlitzDataEditor.Core.Extensions
             return new BinaryReader(new MemoryStream(block));
         }
 
-        
+
         /// <summary>
         /// Reads the next set of bytes and converts it into a string
         /// </summary>
@@ -52,18 +52,28 @@ namespace NFLBlitzDataEditor.Core.Extensions
         /// Reads the next set of bytes until it reaches a null character
         /// </summary>
         /// <param name="reader">The reader to read the bytes from</param>
+        /// <param name="quadBoundedString">Indicates if reading in the string should be done as a single character (false), or as four characters (true)</param>
         /// <returns>A string containing the data that was read.</returns>
-        public static string ReadAsString(this BinaryReader reader)
+        public static string ReadAsString(this BinaryReader reader, bool quadBoundedString = false)
         {
             System.Text.StringBuilder stringBuilder = new System.Text.StringBuilder();
+            int readSize = (quadBoundedString ? 4 : 1);
 
             while (reader.PeekChar() != -1)
             {
-                char nextCharacter = reader.ReadChar();
+                char nextCharacter = (char)0;
+
+                //Either read 1 character of 4 characters
+                for (int i = 0; i < readSize; i++)
+                {
+                    nextCharacter = reader.ReadChar();
+                    if (nextCharacter != 0x00)
+                        stringBuilder.Append(nextCharacter);
+                }
+
+                //Was the last character read a null value?
                 if (nextCharacter == 0x00)
                     break;
-
-                stringBuilder.Append(nextCharacter);
             }
 
             return stringBuilder.ToString();

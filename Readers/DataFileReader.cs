@@ -36,6 +36,11 @@ namespace NFLBlitzDataEditor.Core.Readers
         private readonly IDataFileRecordReader<Team> _teamRecordReader;
 
         /// <summary>
+        /// Reader used to read an image table from the data file
+        /// </summary>
+        private readonly ImageTableReader _imageTableReader;
+
+        /// <summary>
         /// The version of NFL Blitz this datafile is reading
         /// </summary>
         /// <value></value>
@@ -47,12 +52,13 @@ namespace NFLBlitzDataEditor.Core.Readers
             }
         }
 
-        public DataFileReader(Stream stream, DataFileSettings settings, IDataFileRecordReader<Image> imageRecordReader, IDataFileRecordReader<Player> playerRecordReader, IDataFileRecordReader<Team> teamRecordReader)
+        public DataFileReader(Stream stream, DataFileSettings settings, IDataFileRecordReader<Image> imageRecordReader, IDataFileRecordReader<Player> playerRecordReader, IDataFileRecordReader<Team> teamRecordReader, ImageTableReader imageTableReader)
         {
             _reader = new BinaryReader(stream, System.Text.Encoding.ASCII);
             _imageRecordReader = imageRecordReader;
             _playerRecordReader = playerRecordReader;
             _teamRecordReader = teamRecordReader;
+            _imageTableReader = imageTableReader;
             _settings = settings;
         }
 
@@ -148,10 +154,21 @@ namespace NFLBlitzDataEditor.Core.Readers
         /// <returns>An instance of <see cref="Image" />.  If there is no valid image data, null is returned.</returns>
         public Image ReadImage(long position)
         {
-            //First grab the first 40 bytes (as UInt32).  This is the header record.
             _reader.BaseStream.Seek(position, SeekOrigin.Begin);
 
             return _imageRecordReader.Read(_reader);
+        }
+
+        /// <summary>
+        /// Returns an instance of <see cref="ImageInfo" /> located at a location in the file
+        /// </summary>
+        /// <param name="position">The starting position to read the data</param>
+        /// <returns>An instance of <see cref="ImageInfo" />.</returns>
+        public ImageTable ReadImageTable(long position, uint numberOfEntries)
+        {
+            _reader.BaseStream.Seek(position, SeekOrigin.Begin);
+
+            return _imageTableReader.Read(_reader, numberOfEntries);
         }
     }
 }
