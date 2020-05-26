@@ -13,6 +13,45 @@ namespace NFLBlitzDataEditor.Core.Readers
     public class ImageRecordReader
         : IDataFileRecordReader<ImageData>
     {
+
+        private readonly uint[] _rgb332MappingTable;
+
+        public ImageRecordReader()
+        {
+            _rgb332MappingTable = GetRGB332Table();
+        }
+
+        private uint[] GetRGB332Table()
+        {
+            uint[] mappingTable = new uint[256];
+            byte r8 = 0;
+            byte index = 0;
+            for (byte r = 0; r < 3; r++)
+            {
+                byte g8 = 0;
+                for (byte g = 0; g < 3; g++)
+                {
+                    g8 = (byte)((g8 << 1) + 1);
+
+                    byte b8 = 0;
+                    for (byte b = 0; b < 2; b++)
+                    {
+
+                        b8 = (byte)((b8 << 1) + 1);
+
+                        uint color = (uint)(r8 | (g8 << 8) | (b8 << 8) | 0xff000000);
+                        mappingTable[index] = color;
+                        b8 += 127;
+
+                    }
+                }
+
+                r8 = (byte)((r8 << 1) + 1);
+            }
+
+            return mappingTable;
+        }
+
         /// <summary>
         /// Converts a value that represents BGR565 
         /// </summary>
@@ -76,13 +115,13 @@ namespace NFLBlitzDataEditor.Core.Readers
         }
 
         /// <summary>
-        /// Converts an alpha value to 32bit color
+        /// Converts an RGB332 value to 32bit color
         /// </summary>
-        /// <param name="value">The alpha value to convert</param>
+        /// <param name="value">The RGB332 value to convert</param>
         /// <returns>Returns the equivalent RGB32 of the indexed value</returns>
-        protected uint ConvertBitmapMaskToUInt32(byte source)
+        protected uint ConvertRGB332ToUInt32(byte value)
         {
-            return (uint)(source << 24);
+            return _rgb332MappingTable[value];
         }
 
         /// <summary>
@@ -95,10 +134,10 @@ namespace NFLBlitzDataEditor.Core.Readers
         {
             switch (format)
             {
-                case ImageFormat.BitmapMask: return ConvertBitmapMaskToUInt32((byte)(source & 0xFF));
-                case ImageFormat.BGR565: return ConvertBGR565ToUInt32(source);
-                case ImageFormat.BGRA5551: return ConvertBGRA5551ToUInt32(source);
-                case ImageFormat.BGRA4444: return ConvertBGRA4444ToUInt32(source);
+                case ImageFormat.RGB332: return ConvertRGB332ToUInt32((byte)(source & 0xFF));
+                case ImageFormat.RGB565: return ConvertBGR565ToUInt32(source);
+                case ImageFormat.ARGB1555: return ConvertBGRA5551ToUInt32(source);
+                case ImageFormat.ARGB4444: return ConvertBGRA4444ToUInt32(source);
                 default:
                     return 0;
             }
@@ -113,7 +152,7 @@ namespace NFLBlitzDataEditor.Core.Readers
         /// <returns></returns>
         protected uint[] ReadImageData(ImageFormat format, int width, int height, BinaryReader reader)
         {
-            if (format == ImageFormat.BitmapMask)
+            if (format == ImageFormat.RGB332)
             {
                 // The data is stored as bytes
                 return reader.ReadBytes(width * height)
@@ -152,15 +191,15 @@ namespace NFLBlitzDataEditor.Core.Readers
 
             return new ImageData()
             {
-                FileType = headerData[0],
-                UnknownValue1 = headerData[1],
-                UnknownValue2 = headerData[2],
-                UnknownValue3 = headerData[3],
+                Version = headerData[0],
+                Bias = headerData[1],
+                FilterMode = (MipMapFilterMode)headerData[2],
+                UseTrilinearFiltering = headerData[3] != 0,
                 Width = width,
                 Height = height,
-                MipmappingLevel = headerData[6],
-                UnknownValue4 = headerData[7],
-                UnknownValue5 = headerData[8],
+                SmallestLOD = (LevelOfDetail)headerData[6],
+                LargestLOD = (LevelOfDetail)headerData[7],
+                AspectRatio = (LODAspectRatio)headerData[8],
                 Format = format,
                 Data = pixels
             };

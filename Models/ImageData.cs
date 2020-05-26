@@ -9,13 +9,24 @@ namespace NFLBlitzDataEditor.Core.Models
     public class ImageData
     {
         /// <summary>
-        /// A file type or header version indicator?
+        /// A image header version indicator
         /// </summary>
-        public uint FileType { get; set; }
+        public uint Version { get; set; }
 
-        public uint UnknownValue1 { get; set; }
-        public uint UnknownValue2 { get; set; }
-        public uint UnknownValue3 { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        public float Bias { get; set; }
+
+        /// <summary>
+        /// Mip-map mode
+        /// </summary>
+        public MipMapFilterMode FilterMode { get; set; }
+
+        /// <summary>
+        /// Indicates if to use Trilinear filtering when going between mipmaps
+        /// </summary>
+        public bool UseTrilinearFiltering { get; set; }
 
         /// <summary>
         /// The width of the image
@@ -27,11 +38,20 @@ namespace NFLBlitzDataEditor.Core.Models
         /// </summary>
         public int Height { get; set; }
 
-        public uint MipmappingLevel { get; set; }
+        /// <summary>
+        /// The smallest level of detail in the image data
+        /// </summary>
+        public LevelOfDetail SmallestLOD { get; set; }
 
-        public uint UnknownValue4 { get; set; }
+        /// <summary>
+        /// The larges level of detail in the image data
+        /// </summary>
+        public LevelOfDetail LargestLOD { get; set; }
 
-        public uint UnknownValue5 { get; set; }
+        /// <summary>
+        /// The aspect ratio of the textures
+        /// </summary>
+        public LODAspectRatio AspectRatio { get; set; }
 
         /// <summary>
         /// The format the image is in
