@@ -1,21 +1,4 @@
 # NFL Blitz 2k data file layout
-Below are the known regions of an NFL Blitz 2k file.  As more information is gathered, this will be updated
-
-| Start | End | Purpose |
-|-------|-----|---------|
-| 0 | 2816003 | ?? |
-| 2816004 | 183660075 | NFL Blitz and NBA Jam images |
-| 183660076 | 90483471 | ?? |
-| 90483472 | 90529103 | Players data block |
-| 90529104 | 90532700 | Team data block |
-| 90532701 | 2149076871 | ?? |
-| 2149032712 | 2149078344 | ?? - Team data block `FileOffset1` points to a location in this range |
-| 2149540676 | 2149542116 + ?? | ?? - Team data block `FileOffset2` points to a location in this range |
-| 2149542152 | 2149542652 + ?? | ?? - Team data block `FileOffset7` points to a location in this range |
-| 2149863100 | 2149865812 + ?? | ?? - Team data block `FileOffset5` points to a location in this range |
-| 2149863640 | 2149866028 + ?? | ?? - Team data block `FileOffset4` points to a location in this range |
-| 2149877072 | 2149878216 + ?? | ?? - Team data block `FileOffset3` points to a location in this range |
-| 2149878216 + ?? | 6448619520 | ?? |
 
 ## Player Record
 A single player's information is stored in a block of data that is 92 bytes long.  This information is loaded into the `Player` model.

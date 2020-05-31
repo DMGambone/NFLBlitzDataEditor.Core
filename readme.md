@@ -13,8 +13,10 @@ The initial goal of the NFL Blitz Data Editor Core Library is as follows:
 While there are significant consistencies between all arcade versions, each version of NFL Blitz does differ a bit.  As a result, only NFL Blitz 2000 is currently being worked on with hopes to expand this to other version of NFL Blitz.
 
 Information about the data file and structures used in NFL Blitz
+- [Midway File System](docs/file-system.md)
 - [NFL Blitz 2k data file format](docs/blitz2k-arcade.md)
 - [Image formats](docs/image-format.md)
+
 
 # Data File Readers and Writers
 The library is broken down into a set of different classes that help with reading and writing to the NFL Blitz data file.  Each version of NFL Blitz is likely to have it's own implementation of a reader, but all readers are based on either `IDataFileReader` or `IDataFileRecordReader<T>`.  
@@ -25,4 +27,4 @@ The base implementation of `IDataFileReader` is `DataFileReader`.  It is a imple
 `DataFileReader` can be used by itself given that enough information is provided to it.  To use `DataFileReader`, you need to provide a stream to the data file, information about the data file in the form of `DataFileSettings`, and all the necessary `IDataFileRecordReader<T>`.  The implementations of `IDataFileRecordReader<T>` can be found in the library and common ones used are `ImageRecordReader` and player or team specific reads such as `Blitz2kArcade.PlayerRecordReader` and `Blitz2kArcade.TeamRecordReader`.
 
 # Acknowledgements
-There is a group of people who have done most of the discovery work already.  Once that information is known, building an editor is easy.  Much of what I found out initially was based on code by https://github.com/thompjake and information that was shared on http://NFLBlitzFans.com.  All the contributions of others made the work put into this so far much easier.
+There is a group of people who have done most of the discovery work already.  Once that information is known, building an editor is easy.  Much of what I found out initially was based on code by https://github.com/thompjake and information that was shared on http://NFLBlitzFans.com.  https://github.com/bre80 came in shortly afterwards and provided a much needed insight into the low-level workings of NFL Blitz and the file system code is based on his previous work. All the contributions of others made the work put into this so far much easier.

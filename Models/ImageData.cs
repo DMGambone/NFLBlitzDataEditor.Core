@@ -9,6 +9,11 @@ namespace NFLBlitzDataEditor.Core.Models
     public class ImageData
     {
         /// <summary>
+        /// The image's 32-bit CRC based on the header + data
+        /// </summary>
+        public uint CRC { get; set; }
+
+        /// <summary>
         /// A image header version indicator
         /// </summary>
         public uint Version { get; set; }
@@ -62,5 +67,6 @@ namespace NFLBlitzDataEditor.Core.Models
         /// The image pixels
         /// </summary>
         public uint[] Data { get; set; }
+
     }
 }

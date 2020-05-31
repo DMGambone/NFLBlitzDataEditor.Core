@@ -37,8 +37,8 @@ namespace NFLBlitzDataEditor.Core.Readers
         /// <returns>An instance of <see cref="ImageTable" /> representing the image table that was read</returns>
         public ImageTable Read(BinaryReader reader, uint numberOfEntries)
         {
-            //The first part of the image table record is a quad-bounded string
-            string name = reader.ReadAsString(true);
+            //The first part of the image table record is a string
+            string name = reader.ReadAsString(2);
 
             //Read the ImageInfo entries
             ImageInfo[] entries = new ImageInfo[numberOfEntries];

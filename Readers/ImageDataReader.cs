@@ -10,13 +10,13 @@ namespace NFLBlitzDataEditor.Core.Readers
     /// <summary>
     /// Used to read an image from a stream of data
     /// </summary>
-    public class ImageRecordReader
+    public class ImageDataReader
         : IDataFileRecordReader<ImageData>
     {
 
         private readonly uint[] _rgb332MappingTable;
 
-        public ImageRecordReader()
+        public ImageDataReader()
         {
             _rgb332MappingTable = GetRGB332Table();
         }
@@ -170,6 +170,10 @@ namespace NFLBlitzDataEditor.Core.Readers
 
         public ImageData Read(BinaryReader reader)
         {
+            //The first value is a checksum
+            uint crc = reader.ReadUInt32();
+
+            //Read in the whole image header
             uint[] headerData = reader.ReadAsUInt32Array(10);
 
             //If the first value is not 0x00008005, then it is not a valid image
@@ -191,6 +195,7 @@ namespace NFLBlitzDataEditor.Core.Readers
 
             return new ImageData()
             {
+                CRC = crc,
                 Version = headerData[0],
                 Bias = headerData[1],
                 FilterMode = (MipMapFilterMode)headerData[2],

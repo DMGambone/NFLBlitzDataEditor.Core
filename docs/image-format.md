@@ -1,5 +1,5 @@
-## Image Record
-The image record is variable in size.  It starts off with a 40 byte header followed by the pixel data.  The image header starts with 24 bytes used by NFL Blitz, followed by 16 bytes used by that are the Glide specific struct of `GrTexInfo`.  Detailed technical information can be found in [the Glide Reference Manual](https://3dfxglide.com/download/GL3REF.PDF).
+## Image Data
+The image data is variable in size.  It starts off with a CRC32 checksum, followed by a 40 byte header followed by the pixel data.  The image header starts with 24 bytes used by NFL Blitz, followed by 16 bytes used by that are the Glide specific struct of `GrTexInfo`.  Detailed technical information can be found in [the Glide Reference Manual](https://3dfxglide.com/download/GL3REF.PDF).
 
 | Position | Size (bytes) | Purpose | `Image` Property |
 |----------|--------------|---------|------------------|
@@ -15,7 +15,7 @@ The image record is variable in size.  It starts off with a 40 byte header follo
 | 36 | 4 | The pixel format used in this image | `ImageFormat` |
 | 40 | (variable) | The actual pixel data | `Data` |
 
-# Images
+## Images
 The image in the NFL Blitz file are a basic set of pixels in a specific color format.  These color formats compress 32-bit color values into 8-bit or 16-bit storage.  Not all image formats supported by 3DFX are used by NFL Blitz and only those used are listed below.
 | Id | Format | Description |
 |----|--------|-------------|
@@ -27,4 +27,4 @@ The image in the NFL Blitz file are a basic set of pixels in a specific color fo
 | 0d | `AlphaIntensity16` | Image stores the alpha levels information as a 16-bit value |
 
 ## Record Reader
-Currently, a single class, `ImageRecordReader`, provides functionality around reading image records from a stream.
+Currently, a single class, `ImageDataReader`, provides functionality around reading image records from a stream.
