@@ -43,6 +43,8 @@ namespace NFLBlitzDataEditor.Core.FileSystem
         /// </summary>
         private IEnumerable<FileSystemPartition> _partitions = new FileSystemPartition[0];
 
+        private IEnumerable<string> _extensionsWithCRC = new string[] { ".WMS", ".BNK", ".EXE" };
+
         /// <summary>
         /// A mapping of file names to their entry information
         /// </summary>
@@ -236,7 +238,16 @@ namespace NFLBlitzDataEditor.Core.FileSystem
             _fileSystemStream.Seek(entry.Address, SeekOrigin.Begin);
             byte[] buffer = reader.ReadBytes((int)entry.Size);
 
-            return new MemoryStream(buffer);
+            int offset = 0;
+            int size = buffer.Length;
+
+            if(_extensionsWithCRC.Contains(Path.GetExtension(entry.Name)))
+            {
+                offset += 4;
+                size -= 4;
+            }
+
+            return new MemoryStream(buffer, offset, size);
         }
 
         /// <inheritdocs />

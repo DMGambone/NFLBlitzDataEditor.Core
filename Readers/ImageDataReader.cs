@@ -170,9 +170,6 @@ namespace NFLBlitzDataEditor.Core.Readers
 
         public ImageData Read(BinaryReader reader)
         {
-            //The first value is a checksum
-            uint crc = reader.ReadUInt32();
-
             //Read in the whole image header
             uint[] headerData = reader.ReadAsUInt32Array(10);
 
@@ -195,7 +192,6 @@ namespace NFLBlitzDataEditor.Core.Readers
 
             return new ImageData()
             {
-                CRC = crc,
                 Version = headerData[0],
                 Bias = headerData[1],
                 FilterMode = (MipMapFilterMode)headerData[2],

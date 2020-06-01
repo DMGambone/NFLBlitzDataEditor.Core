@@ -17,11 +17,6 @@ namespace NFLBlitzDataEditor.Core.Readers
         private byte[] _gameImage = null;
 
         /// <summary>
-        /// The game file checksum
-        /// </summary>
-        protected uint CRC = 0xAF4B2AA1;
-
-        /// <summary>
         /// The starting offset of all memory pointers
         /// </summary>
         protected uint MemoryAddressOffset = 0x800C4000;
@@ -70,11 +65,7 @@ namespace NFLBlitzDataEditor.Core.Readers
         {
             BinaryReader reader = new BinaryReader(stream);
 
-            //Read the image CRC checksum
-            CRC = reader.ReadUInt32();
-
-            //Read the rest of the game image
-            _gameImage = reader.ReadBytes((int)(stream.Length - 4));
+            _gameImage = reader.ReadBytes((int)(stream.Length));
 
             //Read in the memory address offset
             reader = new BinaryReader(new MemoryStream(_gameImage));
