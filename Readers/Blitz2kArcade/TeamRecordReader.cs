@@ -27,20 +27,22 @@ namespace NFLBlitzDataEditor.Core.Readers.Blitz2kArcade
             team.LinemenRating = reader.ReadInt16();
             team.DefenseRating = reader.ReadInt16();
             team.SpecialTeamsRating = reader.ReadInt16();
-            team.UnknownRegion1 = reader.ReadBytes(6);
+            team.Reserved1 = reader.ReadInt32();
+            
+            team.DroneBase = reader.ReadInt16();
 
             team.Name = reader.ReadAsString(32);
             team.CityName = reader.ReadAsString(32);
             team.CityAbbreviation = reader.ReadAsString(4);
             team.TeamAbbreviation = reader.ReadAsString(4);
 
-            team.PlayersOffset = reader.ReadUInt32();
-            team.FileOffset2 = reader.ReadUInt32();
-            team.FileOffset3 = reader.ReadUInt32();
-            team.FileOffset4 = reader.ReadUInt32();
-            team.FileOffset5 = reader.ReadUInt32();
-            team.FileOffset6 = reader.ReadUInt32();
-            team.FileOffset7 = reader.ReadUInt32();
+            team.PlayersAddress = reader.ReadUInt32();
+            team.TeamLogoAddress = reader.ReadUInt32();
+            team.TeamLogo30Address = reader.ReadUInt32();
+            team.TeamSelectedNameAddress = reader.ReadUInt32();
+            team.TeamNameAddress = reader.ReadUInt32();
+            team.Reserved2 = reader.ReadUInt32();
+            team.UnknownAddress = reader.ReadUInt32();
 
             return team;
         }

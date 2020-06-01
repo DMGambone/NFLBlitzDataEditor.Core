@@ -3,7 +3,7 @@ namespace NFLBlitzDataEditor.Core.Models
     /// <summary>
     /// Information about an NFL data file that is to be read
     /// </summary>
-    public class DataFileSettings
+    public class GameFileSettings
     {
         /// <summary>
         /// The starting position of the teams list in the data file
@@ -22,12 +22,6 @@ namespace NFLBlitzDataEditor.Core.Models
         public uint TeamCount { get; set; }
 
         /// <summary>
-        /// The starting position of the players list in the data file
-        /// </summary>
-        /// <value></value>
-        public uint PlayerListOffset { get; set; }
-
-        /// <summary>
         /// The size of a single player record
         /// </summary>
         public int PlayerRecordSize { get; set; }
@@ -41,6 +35,6 @@ namespace NFLBlitzDataEditor.Core.Models
         /// The version of NFL Blitz these settings are for
         /// </summary>
         /// <value></value>
-        public NFLBlitzVersion Version { get; internal set; }
+        public GameVersion Version { get; internal set; }
     }
 }
