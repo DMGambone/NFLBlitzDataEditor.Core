@@ -62,9 +62,12 @@ namespace NFLBlitzDataEditor.Core.Readers
             player.FirstName = reader.ReadAsString(16);
 
             //resolve the images
-            player.MugShotImage = GetImageInfo(player.MugShotAddress);
-            player.SelectedNameImage = GetImageInfo(player.SelectedNameAddress);
-            player.NameImage = GetImageInfo(player.NameAddress);
+            if (player.MugShotAddress != 0)
+                player.MugShotImage = GetImageInfo(player.MugShotAddress);
+            if (player.SelectedNameAddress != 0)
+                player.SelectedNameImage = GetImageInfo(player.SelectedNameAddress);
+            if (player.NameAddress != 0)
+                player.NameImage = GetImageInfo(player.NameAddress);
 
             return player;
         }
