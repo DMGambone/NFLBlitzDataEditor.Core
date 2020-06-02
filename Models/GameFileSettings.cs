@@ -6,9 +6,9 @@ namespace NFLBlitzDataEditor.Core.Models
     public class GameFileSettings
     {
         /// <summary>
-        /// The starting position of the teams list in the data file
+        /// The memory address of the teams list in the data file
         /// </summary>
-        public uint TeamListOffset { get; set; }
+        public uint TeamListAddress { get; set; }
 
         /// <summary>
         /// The size of a single team reacord

@@ -68,5 +68,20 @@ namespace NFLBlitzDataEditor.Core.Models
         /// Identified as "ancr" in NFL Blitz code, but it's purpose is unknown
         /// </summary>
         public uint Ancr { get; set; }
+
+        /// <summary>
+        /// The info for the player's mug shot image
+        /// </summary>
+        public ImageInfo MugShotImage { get; set; }
+
+        /// <summary>
+        /// The info for the player's selected name image
+        /// </summary>
+        public ImageInfo SelectedNameImage { get; set; }
+
+        /// <summary>
+        /// The info for the player's name image
+        /// </summary>
+        public ImageInfo NameImage { get; set; }
     }
 }

@@ -15,7 +15,7 @@ namespace NFLBlitzDataEditor.Core.Readers
             Version = GameVersion.NFLBlitz2000Arcade,
             PlayerRecordSize = 92,
             PlayersPerTeam = 16,
-            TeamListOffset = 0x80185548,
+            TeamListAddress = 0x80185548,
             TeamRecordSize = 116,
             TeamCount = 31
         };
@@ -61,6 +61,11 @@ namespace NFLBlitzDataEditor.Core.Readers
             player.LastName = reader.ReadAsString(16);
             player.FirstName = reader.ReadAsString(16);
 
+            //resolve the images
+            player.MugShotImage = GetImageInfo(player.MugShotAddress);
+            player.SelectedNameImage = GetImageInfo(player.SelectedNameAddress);
+            player.NameImage = GetImageInfo(player.NameAddress);
+
             return player;
         }
 
@@ -89,12 +94,18 @@ namespace NFLBlitzDataEditor.Core.Readers
             team.TeamAbbreviation = reader.ReadAsString(4);
 
             team.PlayersAddress = reader.ReadUInt32();
-            team.TeamLogoAddress = reader.ReadUInt32();
-            team.TeamLogo30Address = reader.ReadUInt32();
-            team.TeamSelectedNameAddress = reader.ReadUInt32();
-            team.TeamNameAddress = reader.ReadUInt32();
+            team.LogoAddress = reader.ReadUInt32();
+            team.Logo30Address = reader.ReadUInt32();
+            team.SelectedNameAddress = reader.ReadUInt32();
+            team.NameAddress = reader.ReadUInt32();
             team.Reserved2 = reader.ReadUInt32();
             team.UnknownAddress = reader.ReadUInt32();
+
+            //Resolve the image address
+            team.LogoImage = GetImageInfo(team.LogoAddress);
+            team.Logo30Image = GetImageInfo(team.Logo30Address);
+            team.NameImage = GetImageInfo(team.NameAddress);
+            team.SelectedNameImage = GetImageInfo(team.SelectedNameAddress);
 
             return team;
         }

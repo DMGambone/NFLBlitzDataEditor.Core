@@ -49,7 +49,7 @@ namespace NFLBlitzDataEditor.Core.Readers
         /// Load the game into memory and pull out the important information
         /// </summary>
         /// <param name="stream">A stream containing the game file</param>
-        protected void LoadGameImage(Stream stream)
+        protected virtual void LoadGameImage(Stream stream)
         {
             BinaryReader reader = new BinaryReader(stream);
 
@@ -84,50 +84,13 @@ namespace NFLBlitzDataEditor.Core.Readers
         /// </summary>
         /// <param name="reader">The reader containing the list of players</param>
         /// <returns>The complete collection of players in the reader</returns>
-        private IEnumerable<Player> ReadAllPlayers(BinaryReader reader)
+        protected virtual IEnumerable<Player> ReadAllPlayers(BinaryReader reader)
         {
             IList<Player> players = new List<Player>();
             while (players.Count < _settings.PlayersPerTeam)
                 players.Add(ReadNextPlayer(reader));
 
             return players.ToArray();
-        }
-
-        /// <inheritdocs />
-        public Stream OpenMemoryRead(uint address, int size = -1)
-        {
-            uint fileOffset = ResolveMemoryAddressToOffset(address);
-            if (size == -1)
-                size = (int)(_gameImage.Length - fileOffset);
-
-            return new MemoryStream(_gameImage, (int)fileOffset, size);
-        }
-
-        /// <inheritdocs />
-        public IEnumerable<Team> ReadAllTeams()
-        {
-            IList<Team> teams = new List<Team>();
-            int playerTableSize = _settings.PlayerRecordSize * _settings.PlayersPerTeam;
-
-            //Reset the stream to the start of the teams list
-            BinaryReader reader = new BinaryReader(OpenMemoryRead(_settings.TeamListOffset));
-            while (teams.Count < _settings.TeamCount)
-            {
-                //Read the team record
-                Team team = ReadNextTeam(reader);
-
-                //Resolve all the memory address pointers
-                BinaryReader playersReader = new BinaryReader(OpenMemoryRead(team.PlayersAddress, playerTableSize));
-                team.Players = ReadAllPlayers(playersReader);
-
-                team.TeamLogo = GetImageInfo(team.TeamLogoAddress);
-                team.TeamLogo30 = GetImageInfo(team.TeamLogo30Address);
-                team.TeamSelectionImage = GetImageInfo(team.TeamNameAddress);
-
-                teams.Add(team);
-            }
-
-            return teams;
         }
 
         /// <summary>
@@ -158,7 +121,7 @@ namespace NFLBlitzDataEditor.Core.Readers
         /// </summary>
         /// <param name="reader">An instance of <see cref="BinaryReader" /> to read the data from</param>
         /// <returns>An instance of <see cref="ImageInfo" /></returns>
-        private ImageInfo ReadImageInfo(BinaryReader reader)
+        protected virtual ImageInfo ReadImageInfo(BinaryReader reader)
         {
             ImageInfo entry = new ImageInfo();
 
@@ -182,6 +145,39 @@ namespace NFLBlitzDataEditor.Core.Readers
                 Y1 = reader.ReadSingle(),
                 Y2 = reader.ReadSingle()
             };
+        }
+
+        /// <inheritdocs />
+        public Stream OpenMemoryRead(uint address, int size = -1)
+        {
+            uint fileOffset = ResolveMemoryAddressToOffset(address);
+            if (size == -1)
+                size = (int)(_gameImage.Length - fileOffset);
+
+            return new MemoryStream(_gameImage, (int)fileOffset, size);
+        }
+
+        /// <inheritdocs />
+        public IEnumerable<Team> ReadAllTeams()
+        {
+            IList<Team> teams = new List<Team>();
+            int playerTableSize = _settings.PlayerRecordSize * _settings.PlayersPerTeam;
+
+            //Reset the stream to the start of the teams list
+            BinaryReader reader = new BinaryReader(OpenMemoryRead(_settings.TeamListAddress));
+            while (teams.Count < _settings.TeamCount)
+            {
+                //Read the team record
+                Team team = ReadNextTeam(reader);
+
+                //Resolve all the memory address pointers
+                BinaryReader playersReader = new BinaryReader(OpenMemoryRead(team.PlayersAddress, playerTableSize));
+                team.Players = ReadAllPlayers(playersReader);
+
+                teams.Add(team);
+            }
+
+            return teams;
         }
 
         /// <inheritdocs />

@@ -70,22 +70,22 @@ namespace NFLBlitzDataEditor.Core.Models
         /// <summary>
         /// Points to the memory location of the team logo
         /// </summary>
-        public uint TeamLogoAddress { get; set; }
+        public uint LogoAddress { get; set; }
 
         /// <summary>
         /// Points to the memory location of the team logo (what is 30?)
         /// </summary>
-        public uint TeamLogo30Address { get; set; }
+        public uint Logo30Address { get; set; }
 
         /// <summary>
         /// Points to the memory location of the image used to select the team and the team is selected
         /// </summary>
-        public uint TeamSelectedNameAddress { get; set; }
+        public uint SelectedNameAddress { get; set; }
 
         /// <summary>
         /// Points to the memory location of the image used to select the team
         /// </summary>
-        public uint TeamNameAddress { get; set; }
+        public uint NameAddress { get; set; }
 
         /// <summary>
         /// Always 0 (Reserved)?
@@ -106,17 +106,22 @@ namespace NFLBlitzDataEditor.Core.Models
         /// <summary>
         /// The team logo image
         /// </summary>
-        public ImageInfo TeamLogo { get; set; }
+        public ImageInfo LogoImage { get; set; }
 
         /// <summary>
         /// The team logo image??
         /// </summary>
-        public ImageInfo TeamLogo30 { get; set; }
+        public ImageInfo Logo30Image { get; set; }
 
         /// <summary>
         /// The team name image
         /// </summary>
-        public ImageInfo TeamSelectionImage { get; set; }
+        public ImageInfo NameImage { get; set; }
+
+        /// <summary>
+        /// The team name image when selected
+        /// </summary>
+        public ImageInfo SelectedNameImage { get; set; }
         #endregion
     }
 }
