@@ -1,6 +1,6 @@
 using System;
 
-namespace NFLBlitzDataEditor.Core.FileSystem
+namespace MidwayGamesFS
 {
     /// <summary>
     /// Contains the information stored in the file system header
@@ -15,6 +15,6 @@ namespace NFLBlitzDataEditor.Core.FileSystem
         /// <summary>
         /// The location of the first partition
         /// </summary>
-        public uint FirstPartitionAddress { get; set; }
+        public int FirstPartitionAddress { get; set; }
     }
 }

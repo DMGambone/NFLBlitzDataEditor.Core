@@ -2,31 +2,34 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.IO;
-using NFLBlitzDataEditor.Core.Models;
-using NFLBlitzDataEditor.Core.Extensions;
 
-namespace NFLBlitzDataEditor.Core.FileSystem
+namespace MidwayGamesFS
 {
     /// <summary>
     /// Provides functionality to reading and writing from a Midway file system
     /// </summary>
-    public class MidwayFileSystem
-        : IMidwayFileSystem
+    public class FileSystem
+        : IFileSystem
     {
         /// <summary>
         /// The size of a single sector in the hard drive
         /// </summary>
-        protected readonly uint SectorSize = 0x200;  //512 byte sectors
+        protected readonly int SectorSize = 0x200;  //512 byte sectors
 
         /// <summary>
         /// The size of a single block in the file system
         /// </summary>
-        protected readonly uint BlockSize = 0x1000;  //4k blocks
+        protected readonly int BlockSize = 0x1000;  //4k blocks
 
         /// <summary>
-        /// The size of a partition entry table
+        /// The maximum size of a partition file allocation table
         /// </summary>
-        protected readonly uint PartitionFATSize = 0xff0; //4080 byte sectors
+        protected readonly int PartitionFATSize = 0xff0; //4080 byte sectors
+
+        /// <summary>
+        /// The maximum number of entries in a partition's file allocation table
+        /// </summary>
+        protected readonly int MaximumFATEntries = 170;
 
         /// <summary>
         /// The file system header information
@@ -36,13 +39,17 @@ namespace NFLBlitzDataEditor.Core.FileSystem
         /// <summary>
         /// The address to resolve all address from
         /// </summary>
-        protected uint BaseAddress { get; private set; }
+        protected int BaseAddress { get; private set; }
 
         /// <summary>
         /// The complete list of file system partitions
         /// </summary>
         private IEnumerable<FileSystemPartition> _partitions = new FileSystemPartition[0];
 
+        /// <summary>
+        /// List of file extensions that have CRC checksums
+        /// </summary>
+        /// <value></value>
         private IEnumerable<string> _extensionsWithCRC = new string[] { ".WMS", ".BNK", ".EXE" };
 
         /// <summary>
@@ -53,19 +60,17 @@ namespace NFLBlitzDataEditor.Core.FileSystem
         private IDictionary<string, FileAllocationTableEntry> _fileAllocationTable = new Dictionary<string, FileAllocationTableEntry>();
 
         /// <summary>
-        /// The read/write stream used to access the file system
+        /// The raw data of the file system
         /// </summary>
-        private readonly Stream _fileSystemStream;
+        private readonly IDataBuffer _fileSystemData;
 
         /// <summary>
-        /// Initializes the file system
+        /// Initializes the filesystem
         /// </summary>
-        public MidwayFileSystem(Stream fileSystemStream, uint sectorSize, uint blockSize, uint partitionEntryTableSize)
+        /// <param name="data">The raw file system data</param>
+        public FileSystem(IDataBuffer data)
         {
-            _fileSystemStream = fileSystemStream;
-            SectorSize = sectorSize;
-            BlockSize = blockSize;
-            PartitionFATSize = partitionEntryTableSize;
+            _fileSystemData = data;
 
             //Load the file system header information
             LoadFileSystemHeader();
@@ -78,7 +83,7 @@ namespace NFLBlitzDataEditor.Core.FileSystem
         /// Resolves a sector value into a location within the file system
         /// </summary>
         /// <param name="sector">The sector value to resolve</param>
-        protected virtual uint ResolveSectorAddress(uint sector)
+        protected virtual int ResolveSectorAddress(int sector)
         {
             return sector * SectorSize;
         }
@@ -87,9 +92,66 @@ namespace NFLBlitzDataEditor.Core.FileSystem
         /// Resolves a block value into a location within the file system
         /// </summary>
         /// <param name="block">The block value to resolve</param>
-        protected virtual uint ResolveBlockAddress(uint block)
+        protected virtual int ResolveBlockAddress(int block)
         {
             return BaseAddress + (block * BlockSize);
+        }
+
+        /// <summary>
+        /// Reads the next value as a Date/Time value 
+        /// </summary>
+        /// <param name="reader">The reader to read the int from</param>
+        protected DateTime ConvertToTimestamp(int data)
+        {
+            //A timestamp is stored in 32 bits, with the time in the first 16 bits and date in the second 16 bits.
+            ushort time = (ushort)(data & 0xff);
+            ushort date = (ushort)((data >> 16) & 0xff);
+
+            //Time: hours, minutes, seconds are stored as 5 bits, 6 bits, 5 bits (respectively)
+            int hour = (time >> 11) & 0x1f;
+            int minute = (time >> 5) & 0x3f;
+            int second = (time & 0x1f) * 2;
+
+            //Date: year (since 1980), month, day are stored as 7 bits, 4 bits, 5 bits (respectively)
+            int year = (date >> 9) & 0x5f;
+            int month = (date >> 5) & 0x0f;
+            int day = date & 0x1f;
+
+            if (year == 0 || month == 0 || day == 0)
+                return DateTime.MinValue;
+
+            return new DateTime(1980 + year, month, day, hour, minute, second);
+        }
+
+        /// <summary>
+        /// Swaps the bytes in a 32-bit word
+        /// </summary>
+        /// <param name="word">The 32-bit word to swap the values for</param>
+        /// <returns>A value of <paramref name="word" /> with the endianness reversed</returns>
+        protected byte[] SwapBytes(byte[] word)
+        {
+            return new byte[4] { word[3], word[2], word[1], word[0] };
+        }
+
+        /// <summary>
+        /// Converts a collection of bytes into a string
+        /// </summary>
+        /// <param name="data">The data to convert</param>
+        protected string ConvertToString(byte[] data)
+        {
+            //Loop through the string and flip the bytes in each word
+            for (int i = 0; i < data.Length; i += 4)
+            {
+                byte[] word = new byte[4] { data[i], data[i + 1], data[i + 2], data[i + 3] };
+                word = SwapBytes(word);
+                data[i] = word[0];
+                data[i + 1] = word[1];
+                data[i + 2] = word[2];
+                data[i + 3] = word[3];
+            }
+
+            string value = System.Text.Encoding.ASCII.GetString(data);
+            return value.TrimEnd((char)0);
         }
 
         /// <summary>
@@ -100,17 +162,25 @@ namespace NFLBlitzDataEditor.Core.FileSystem
         protected virtual FileAllocationTableEntry ReadFATEntry(BinaryReader reader)
         {
             //Read in the filename, which is null-terminated up to 12 characters
-            string fileName = reader.ReadAsString(12, true);
+            string fileName = ConvertToString(reader.ReadBytes(12));
             if (string.IsNullOrEmpty(fileName))
                 return null;
 
             //Read the file size
+            int size = reader.ReadInt32() * 4;
+            DateTime timestamp = ConvertToTimestamp(reader.ReadInt32());
+            int address = reader.ReadInt32();
+            int checksum = 0;
+            if (_extensionsWithCRC.Contains(Path.GetExtension(fileName)))
+                checksum = GetFileChecksum(address);
+
             return new FileAllocationTableEntry()
             {
                 Name = fileName,
-                Size = reader.ReadUInt32() * 4,
-                Timestamp = reader.ReadTimestamp(),
-                Address = reader.ReadUInt32()
+                Size = size,
+                Timestamp = timestamp,
+                Position = address,
+                Checksum = checksum
             };
         }
 
@@ -121,18 +191,15 @@ namespace NFLBlitzDataEditor.Core.FileSystem
         /// <returns>An collection of <see cref="FileAllocationTableEntry" /></returns>
         protected virtual ICollection<FileAllocationTableEntry> ReadPartitionFAT(BinaryReader reader)
         {
-            byte[] entriesTable = reader.ReadBytes((int)PartitionFATSize);
             IList<FileAllocationTableEntry> entries = new List<FileAllocationTableEntry>();
-
-            BinaryReader headerTableReader = new BinaryReader(new MemoryStream(entriesTable));
-            while (headerTableReader.PeekChar() != -1)
+            while (entries.Count < 170)
             {
-                FileAllocationTableEntry entry = ReadFATEntry(headerTableReader);
+                FileAllocationTableEntry entry = ReadFATEntry(reader);
                 if (entry == null)
                     break;
 
                 //Resolve the entry's actual file location
-                entry.Address = ResolveBlockAddress(entry.Address);
+                entry.Position = ResolveBlockAddress(entry.Position);
 
                 entries.Add(entry);
             }
@@ -145,12 +212,9 @@ namespace NFLBlitzDataEditor.Core.FileSystem
         /// </summary>
         /// <param name="sectorIndex">The sector index to read</param>
         /// <returns>A collection of bytes from that sector</returns>
-        protected byte[] ReadSector(uint sectorIndex)
+        protected virtual BinaryReader ReadSector(int sectorIndex)
         {
-            _fileSystemStream.Seek(ResolveSectorAddress(sectorIndex), SeekOrigin.Begin);
-            BinaryReader reader = new BinaryReader(_fileSystemStream);
-
-            return reader.ReadBytes((int)SectorSize);
+            return _fileSystemData.GetReader(ResolveSectorAddress(sectorIndex), SectorSize);
         }
 
         /// <summary>
@@ -159,9 +223,7 @@ namespace NFLBlitzDataEditor.Core.FileSystem
         protected virtual void LoadFileSystemHeader()
         {
             //Read in the file system header, located in the 3rd sector
-            byte[] sectorData = ReadSector(3);
-
-            using (BinaryReader reader = new BinaryReader(new MemoryStream(sectorData)))
+            using (BinaryReader reader = ReadSector(3))
             {
                 Header = new FileSystemHeader();
 
@@ -170,8 +232,19 @@ namespace NFLBlitzDataEditor.Core.FileSystem
                 reader.ReadUInt32();
 
                 //Get the location of the first partion.  The value is a sector index
-                Header.FirstPartitionAddress = ResolveSectorAddress(reader.ReadUInt32() + 1);
+                Header.FirstPartitionAddress = ResolveSectorAddress(reader.ReadInt32() + 1);
             }
+        }
+
+        /// <summary>
+        /// Returns the checksum of a file
+        /// </summary>
+        /// <param name="address">The location of the file where the checksum would be</param>
+        /// <returns>The file's CRC checksum.  If it does not use a checksum, 0 is returned</returns>
+        protected int GetFileChecksum(int address)
+        {
+            BinaryReader reader = _fileSystemData.GetReader(address, 4);
+            return reader.ReadInt32();
         }
 
         /// <summary>
@@ -183,17 +256,16 @@ namespace NFLBlitzDataEditor.Core.FileSystem
 
             //Set the base address for resolving addresses
             //Why is the start of the addressing 1,536 before the first partition? 
-            uint partitionAddress = Header.FirstPartitionAddress;
+            int partitionAddress = Header.FirstPartitionAddress;
             BaseAddress = partitionAddress - (3 * BlockSize);
-
-            //Go to the starting partition location.
-            BinaryReader reader = new BinaryReader(_fileSystemStream);
-            reader.BaseStream.Seek(partitionAddress, SeekOrigin.Begin);
 
             //Keep reading each partition
             IList<FileSystemPartition> partitions = new List<FileSystemPartition>();
-            while (reader.PeekChar() != -1)
+            while (partitionAddress != 0)
             {
+                //Read the first block of the partition, which contains the allocation table as well as pointer to the next partition
+                BinaryReader reader = _fileSystemData.GetReader(partitionAddress, BlockSize);
+
                 FileSystemPartition partition = new FileSystemPartition()
                 {
                     Address = partitionAddress,
@@ -204,16 +276,18 @@ namespace NFLBlitzDataEditor.Core.FileSystem
                 foreach (FileAllocationTableEntry entry in partition.FileAllocationTable)
                     _fileAllocationTable.Add(entry.Name, entry);
 
-                reader.ReadAsUInt32Array(3);
+                //Read the next 3 words, but those aren't used
+                reader.ReadInt32();
+                reader.ReadInt32();
+                reader.ReadInt32();
 
                 //Go to the next partition
-                uint nextPartitionBlock = reader.ReadUInt32();
+                int nextPartitionBlock = reader.ReadInt32();
                 if (nextPartitionBlock == 0)
                     break;
 
                 //Go to the next starting partition location.
                 partitionAddress = ResolveBlockAddress(nextPartitionBlock);
-                reader.BaseStream.Seek(partitionAddress, SeekOrigin.Begin);
             }
 
             _partitions = partitions;
@@ -226,28 +300,30 @@ namespace NFLBlitzDataEditor.Core.FileSystem
         }
 
         /// <inheritdocs />
-        public System.IO.Stream OpenRead(string fileName)
+        public FileAllocationTableEntry GetFileInfo(string fileName)
         {
-            //Find the file entry
             if (!_fileAllocationTable.ContainsKey(fileName))
                 throw new System.IO.FileNotFoundException($"{fileName} does not exist in this file system");
 
-            FileAllocationTableEntry entry = _fileAllocationTable[fileName];
+            return _fileAllocationTable[fileName];
+        }
+        
+        /// <inheritdocs />
+        public System.IO.Stream OpenRead(string fileName)
+        {
+            //Find the file entry
+            FileAllocationTableEntry entry = GetFileInfo(fileName);
+            int offset = entry.Position;
+            int size = entry.Size;
 
-            BinaryReader reader = new BinaryReader(_fileSystemStream);
-            _fileSystemStream.Seek(entry.Address, SeekOrigin.Begin);
-            byte[] buffer = reader.ReadBytes((int)entry.Size);
-
-            int offset = 0;
-            int size = buffer.Length;
-
-            if(_extensionsWithCRC.Contains(Path.GetExtension(entry.Name)))
+            if (entry.Checksum != 0)
             {
                 offset += 4;
                 size -= 4;
             }
 
-            return new MemoryStream(buffer, offset, size);
+            //Read the complete file from the file system and return a stream
+            return new MemoryStream(_fileSystemData.Get(offset, size));
         }
 
         /// <inheritdocs />

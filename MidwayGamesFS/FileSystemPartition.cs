@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace NFLBlitzDataEditor.Core.FileSystem
+namespace MidwayGamesFS
 {
     /// <summary>
     /// Represents a partition with the file system, which contains up to 170 <see cref="FileAllocationTableEntry" /> records
@@ -11,7 +11,7 @@ namespace NFLBlitzDataEditor.Core.FileSystem
         /// The base address of the partition
         /// </summary>
         /// <value></value>
-        public uint Address { get; set; }
+        public int Address { get; set; }
 
         /// <summary>
         /// The entries in the partition

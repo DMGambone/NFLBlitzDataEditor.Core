@@ -1,6 +1,6 @@
 using System;
 
-namespace NFLBlitzDataEditor.Core.FileSystem
+namespace MidwayGamesFS
 {
     /// <summary>
     /// Represents a single entry in the file system
@@ -15,7 +15,7 @@ namespace NFLBlitzDataEditor.Core.FileSystem
         /// <summary>
         /// The size of the file
         /// </summary>
-        public uint Size { get; set; }
+        public int Size { get; set; }
 
         /// <summary>
         /// The file timestamp
@@ -25,6 +25,11 @@ namespace NFLBlitzDataEditor.Core.FileSystem
         /// <summary>
         /// The location of the file on the physical drive
         /// </summary>
-        public uint Address { get; set; }
+        public int Position { get; set; }
+
+        /// <summary>
+        /// The file's checksum.  If the file does not have a checksum, this is 0
+        /// </summary>
+        public int Checksum {get; set; }
     }
 }

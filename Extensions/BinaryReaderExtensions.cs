@@ -5,15 +5,6 @@ namespace NFLBlitzDataEditor.Core.Extensions
 {
     public static class BinaryReaderExtensions
     {
-        /// <summary>
-        /// Swaps the bytes in a 32-bit word
-        /// </summary>
-        /// <param name="word">The 32-bit word to swap the values for</param>
-        /// <returns>A value of <paramref name="word" /> with the endianness reversed</returns>
-        private static byte[] SwapBytes(byte[] word)
-        {
-            return new byte[4] { word[3], word[2], word[1], word[0] };
-        }
 
         /// <summary>
         /// Returns a reader used to read a single block of data from another stream
@@ -35,7 +26,7 @@ namespace NFLBlitzDataEditor.Core.Extensions
         /// <param name="length">The length of the string to read.  -1 indicates if the read should keep reading until the first null terminated is encountered</param>
         /// <param name="bigEndian">Indicates that the string is stored using big-endian encoding.</param>
         /// <returns>A string containing the data that was read.  Any trailing null characters are trimmed.</returns>
-        public static string ReadAsString(this BinaryReader reader, int length = -1, bool bigEndian = false)
+        public static string ReadAsString(this BinaryReader reader, int length = -1)
         {
             string value = "";
 
@@ -43,9 +34,6 @@ namespace NFLBlitzDataEditor.Core.Extensions
             {
                 //Read 4 bytes
                 byte[] bytes = reader.ReadBytes(4);
-
-                if (bigEndian)
-                    bytes = SwapBytes(bytes);
 
                 value += System.Text.Encoding.ASCII.GetString(bytes).Trim((char)0);
 
@@ -59,32 +47,7 @@ namespace NFLBlitzDataEditor.Core.Extensions
             return value;
         }
 
-        /// <summary>
-        /// Reads the next value as a Date/Time value 
-        /// </summary>
-        /// <param name="reader">The reader to read the int from</param>
-        public static DateTime ReadTimestamp(this BinaryReader reader)
-        {
-            //A timestamp is stored in 32 bits, with the time in the first 16 bits and date in the second 16 bits.
-            ushort time = reader.ReadUInt16();
-            ushort date = reader.ReadUInt16();
-
-            //Time: hours, minutes, seconds are stored as 5 bits, 6 bits, 5 bits (respectively)
-            int hour = (time >> 11) & 0x1f;
-            int minute = (time >> 5) & 0x3f;
-            int second = (time & 0x1f) * 2;
-
-            //Date: year (since 1980), month, day are stored as 7 bits, 4 bits, 5 bits (respectively)
-            int year = (date >> 9) & 0x5f;
-            int month = (date >> 5) & 0x0f;
-            int day = date & 0x1f;
-
-            if (year == 0 || month == 0 || day == 0)
-                return DateTime.MinValue;
-
-            return new DateTime(1980 + year, month, day, hour, minute, second);
-        }
-
+        
         /// <summary>
         /// Reads an array of int values
         /// </summary>

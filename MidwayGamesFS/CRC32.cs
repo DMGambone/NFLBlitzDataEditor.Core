@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 
-namespace NFLBlitzDataEditor.Core.FileSystem
+namespace MidwayGamesFS
 {
     /// <summary>
     /// Computes the 32-bit CRC for data
