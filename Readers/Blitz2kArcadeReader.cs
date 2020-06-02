@@ -14,11 +14,14 @@ namespace NFLBlitzDataEditor.Core.Readers
         public static GameFileSettings Settings = new GameFileSettings()
         {
             Version = GameVersion.NFLBlitz2000Arcade,
-            PlayerRecordSize = 92,
-            PlayersPerTeam = 16,
+
             TeamListAddress = 0x80185548,
             TeamRecordSize = 116,
-            TeamCount = 31
+            TeamCount = 31,
+
+            PlayerRecordSize = 92,
+
+            PlaybookAddress = 0x8023694C
         };
 
         public Blitz2kArcadeReader(Stream stream)

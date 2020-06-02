@@ -29,12 +29,37 @@ namespace NFLBlitzDataEditor.Core.Models
         /// <summary>
         /// The number of players per team
         /// </summary>
-        public int PlayersPerTeam { get; set; }
+        public int PlayersPerTeam { get; set; } = 16;
+
+        /// <summary>
+        /// The memory address to the playbook
+        /// </summary>
+        public uint PlaybookAddress { get; set; }
+
+        /// <summary>
+        /// The number of players involved in a play
+        /// </summary>
+        public int PlayersPerPlay { get; set; } = 7;
+
+        /// <summary>
+        /// The size of a play formation record
+        /// </summary>
+        public int PlayFormationRecordSize { get; set; } = 20;
+
+        /// <summary>
+        /// The size of a play record
+        /// </summary>
+        public int PlayRecordSize { get; set; } = 36;
+
+        /// <summary>
+        /// The number of plays in the playbook
+        /// </summary>
+        public int NumberOfPlays { get; set; } = 60;
 
         /// <summary>
         /// The version of NFL Blitz these settings are for
         /// </summary>
         /// <value></value>
-        public GameVersion Version { get; internal set; }
+        public GameVersion Version { get; set; }
     }
 }

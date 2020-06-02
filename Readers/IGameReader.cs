@@ -26,5 +26,33 @@ namespace NFLBlitzDataEditor.Core.Readers
         /// <returns>An instance of <see cref="ImageInfo" />.</returns>
         ImageInfo GetImageInfo(uint address);
 
-   }
+        /// <summary>
+        /// Returns the string located at a specific memory address
+        /// </summary>
+        /// <param name="address">The memory address to read the string from</param>
+        /// <returns>The string value located at the address</returns>
+        string ReadString(uint address);
+
+        /// <summary>
+        /// Returns the string located at a specific memory address
+        /// </summary>
+        /// <param name="address">The memory address to read the string from</param>
+        /// <param name="size">The size of the string</param>
+        /// <returns>The string value located at the address</returns>
+        string ReadString(uint address, int size);
+
+
+        /// <summary>
+        /// Reads a complete play located a memory address specified
+        /// </summary>
+        /// <param name="address">The memory address where the play route is located</param>
+        /// <returns>An instance of <see cref="Play" /> containing the complete play</returns>
+        Play ReadPlay(uint address);
+
+        /// <summary>
+        /// Gets the complete playbook
+        /// </summary>
+        /// <returns>An instance of <see cref="Playbook" /> defined in the games</returns>
+        Playbook GetPlaybook();
+    }
 }

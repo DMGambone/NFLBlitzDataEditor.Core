@@ -30,13 +30,14 @@ namespace NFLBlitzDataEditor.Core.Extensions
         {
             string value = "";
 
-            for (int idx = 0; idx < maxLength; idx++)
+            for (int idx = 0; idx < maxLength || maxLength == -1; idx++)
             {
                 char nextChar = reader.ReadChar();
                 if (nextChar == (char)0)
                 {
                     //Consume the rest of the string and toss it away
-                    reader.ReadBytes(maxLength - idx - 1);
+                    if (maxLength != -1)
+                        reader.ReadBytes(maxLength - idx - 1);
                     break;
                 }
 

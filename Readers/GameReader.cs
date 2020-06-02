@@ -74,7 +74,7 @@ namespace NFLBlitzDataEditor.Core.Readers
         protected virtual uint ResolveMemoryAddressToOffset(uint address)
         {
             if (address < MemoryAddressOffset)
-                throw new ArgumentOutOfRangeException($"{address} is not a valid memory address");
+                throw new ArgumentOutOfRangeException(nameof(address), $"{address} is not a valid memory address");
 
             return (address - MemoryAddressOffset) + 4;
         }
@@ -91,29 +91,6 @@ namespace NFLBlitzDataEditor.Core.Readers
                 players.Add(ReadNextPlayer(reader));
 
             return players.ToArray();
-        }
-
-        /// <summary>
-        /// Returns the string located at a specific memory address
-        /// </summary>
-        /// <param name="address">The memory address to read the string from</param>
-        /// <returns>The string value located at the address</returns>
-        protected virtual string ReadString(uint address)
-        {
-            BinaryReader reader = new BinaryReader(OpenMemoryRead(address));
-            return reader.ReadAsString();
-        }
-
-        /// <summary>
-        /// Returns the string located at a specific memory address
-        /// </summary>
-        /// <param name="address">The memory address to read the string from</param>
-        /// <param name="size">The size of the string</param>
-        /// <returns>The string value located at the address</returns>
-        protected virtual string ReadString(uint address, int size)
-        {
-            BinaryReader reader = new BinaryReader(OpenMemoryRead(address, size));
-            return reader.ReadAsString(size);
         }
 
         /// <summary>
@@ -148,6 +125,20 @@ namespace NFLBlitzDataEditor.Core.Readers
         }
 
         /// <inheritdocs />
+        public virtual string ReadString(uint address)
+        {
+            BinaryReader reader = new BinaryReader(OpenMemoryRead(address));
+            return reader.ReadAsString();
+        }
+
+        /// <inheritdocs />
+        public virtual string ReadString(uint address, int size)
+        {
+            BinaryReader reader = new BinaryReader(OpenMemoryRead(address, size));
+            return reader.ReadAsString(size);
+        }
+
+        /// <inheritdocs />
         public Stream OpenMemoryRead(uint address, int size = -1)
         {
             uint fileOffset = ResolveMemoryAddressToOffset(address);
@@ -178,6 +169,169 @@ namespace NFLBlitzDataEditor.Core.Readers
             }
 
             return teams;
+        }
+
+        /// <summary>
+        /// Reads a play route located at the memory address specified
+        /// </summary>
+        /// <param name="address">The memory address where the play route is located</param>
+        /// <returns>An instance of <see cref="PlayRoute" /> containing the route actions</returns>
+        protected virtual PlayRoute ReadPlayRoute(uint address)
+        {
+            BinaryReader reader = new BinaryReader(OpenMemoryRead(address));
+
+            IList<PlayRouteAction> actions = new List<PlayRouteAction>();
+            uint routeAction = 0;
+            while ((routeAction = reader.ReadUInt32()) != 0)
+            {
+                byte[] values = BitConverter.GetBytes(routeAction);
+
+                PlayRouteAction action = new PlayRouteAction()
+                {
+                    X = values[3],
+                    Z = values[2],
+                    Unknown = values[1],
+                    Action = (RouteAction)values[0]
+                };
+
+                actions.Add(action);
+            }
+
+            return new PlayRoute()
+            {
+                Actions = actions.ToArray()
+            };
+        }
+
+        /// <summary>
+        /// Reads a single play formation located a memory address specified
+        /// </summary>
+        /// <param name="address">The memory address where the play formation is located</param>
+        /// <returns>An instance of <see cref="PlayFormation" /></returns>
+        protected virtual PlayFormation ReadPlayFormation(uint address)
+        {
+            BinaryReader reader = new BinaryReader(OpenMemoryRead(address, _settings.PlayFormationRecordSize));
+            return new PlayFormation()
+            {
+                LineOfScrimmageX = reader.ReadSingle(),
+                LineOfScrimmageZ = reader.ReadSingle(),
+                Sequence = reader.ReadBytes(4),
+                Mode = reader.ReadInt32(),
+                ControlFlag = reader.ReadInt32(),
+            };
+        }
+
+        /// <summary>
+        /// Reads the complete set of play formations located a memory address specified
+        /// </summary>
+        /// <param name="address">The memory address where the play formations are located</param>
+        /// <returns>An collection of <see cref="PlayFormation" /></returns>
+        protected virtual PlayFormation[] ReadPlayFormations(uint address)
+        {
+            int numPlayersPerPlay = _settings.PlayersPerPlay;
+            BinaryReader reader = new BinaryReader(OpenMemoryRead(address, numPlayersPerPlay * 4));
+
+            uint[] playFormationAddresses = reader.ReadAsUInt32Array(numPlayersPerPlay);
+            PlayFormation[] formation = new PlayFormation[numPlayersPerPlay];
+            uint playerIndex = 0;
+            foreach (uint playFormationAddress in playFormationAddresses)
+            {
+                formation[playerIndex] = ReadPlayFormation(playFormationAddress);
+                playerIndex++;
+            }
+
+            return formation;
+        }
+
+        /// <summary>
+        /// Reads a complete play located a memory address specified
+        /// </summary>
+        /// <param name="address">The memory address where the play route is located</param>
+        /// <returns>An instance of <see cref="Play" /> containing the complete play</returns>
+        protected virtual Play ReadPlay(BinaryReader reader)
+        {
+            int numPlayersPerPlay = _settings.PlayersPerPlay;
+
+            Play play = new Play()
+            {
+                PlayFormationAddress = reader.ReadUInt32(),
+                Type = (PlayType)reader.ReadUInt32(),
+                RouteAddresses = reader.ReadAsUInt32Array(numPlayersPerPlay)
+            };
+
+            //play.Formation = ReadPlayFormations(play.PlayFormationAddress);
+
+            //Read in the play routes for each player
+            play.Routes = new PlayRoute[numPlayersPerPlay];
+            uint playerIndex = 0;
+            foreach (uint routeAddress in play.RouteAddresses)
+            {
+                play.Routes[playerIndex] = ReadPlayRoute(routeAddress);
+                playerIndex++;
+            }
+
+            return play;
+        }
+
+        /// <summary>
+        /// Reads the next playbook entry from the reader
+        /// </summary>
+        /// <param name="reader">The reader containing the playbook entries</param>
+        /// <returns>An instance of <see cref="PlaybookEntry" /> if there is an entry there.  Null is returned if there is no entry.</returns>
+        protected virtual PlaybookEntry ReadPlaybookEntry(BinaryReader reader)
+        {
+            PlaybookEntry entry = new PlaybookEntry()
+            {
+                NameAddress = reader.ReadUInt32(),
+                PlayDataAddress = reader.ReadUInt32(),
+                Unknown1 = reader.ReadUInt32(),
+                Unknown2 = reader.ReadUInt32(),
+                Unknown3 = reader.ReadUInt32()
+            };
+
+            if (entry.NameAddress == 0)
+                return null;
+
+            entry.Name = ReadString(entry.NameAddress);
+            if (entry.PlayDataAddress != 0)
+                entry.PlayData = ReadPlay(entry.PlayDataAddress);
+
+            if (entry.Unknown2 != 0)
+            {
+                Console.WriteLine(ReadString(entry.Unknown2));
+                Play audible = ReadPlay(entry.Unknown2);
+            }
+            return entry;
+        }
+
+        /// <inheritdocs />
+        public virtual Play ReadPlay(uint address)
+        {
+            BinaryReader reader = new BinaryReader(OpenMemoryRead(address, _settings.PlayRecordSize));
+
+            return ReadPlay(reader);
+        }
+
+        /// <inheritdocs />
+        public virtual Playbook GetPlaybook()
+        {
+            BinaryReader reader = new BinaryReader(OpenMemoryRead(_settings.PlaybookAddress));
+
+            IList<PlaybookEntry> offense = new List<PlaybookEntry>();
+            PlaybookEntry entry = null;
+            while ((entry = ReadPlaybookEntry(reader)) != null)
+                offense.Add(entry);
+
+            IList<PlaybookEntry> defense = new List<PlaybookEntry>();
+            while ((entry = ReadPlaybookEntry(reader)) != null)
+                defense.Add(entry);
+
+            return new Playbook()
+            {
+                Offense = offense,
+                Defense = defense
+            };
+
         }
 
         /// <inheritdocs />
