@@ -1,4 +1,4 @@
-# NFL Blitz 2k data file layout
+# NFL Blitz 2k Game Editor
 
 ## Player Record
 A single player's information is stored in a block of data that is 92 bytes long.  This information is loaded into the `Player` model.
@@ -31,21 +31,17 @@ A single team's information is stored in a block of data that is 116 bytes long.
 | 4 | 2 | Team Linemen Rating | `LinemenRating` |
 | 6 | 2 | Team Defense Rating | `DefenseRating` |
 | 8 | 2 | Team Special Teams Rating | `SpecialTeamsRating` |
-| 10 | 6 | ?? | `UnknownRegion1` |
+| 10 | 2 | Unused value | `Reserved1` |
+| 10 | 4 | Base setup of the team AI | `DroneBase` |
 | 16 | 32 | Team Name | `Name` |
 | 48 | 32 | City Name | `CityName` |
 | 80 | 4 | City Abbreviation | `CityAbbreviation` |
 | 84 | 4 | Team Abbreviation | `TeamAbbreviation` |
-| 88 | 4 | ?? - Points to a 1472 byte section? | `FileOffset1` |  
-| 92 | 4 | ?? - Points to a 48 byte section? | `FileOffset2` |  
-| 96 | 4 | ?? - Points to a 36 or 52 byte section? | `FileOffset3` |  
-| 100 | 4 | ?? - Points to a 36 or 1344 (only the Ravens) byte section? | `FileOffset4` |
-| 104 | 4 | ?? - Points to a 36 or 1668 (only the Bengals) byte section? | `FileOffset5` |
-| 108 | 4 | ?? - Always 0 | `FileOffset6` |
-| 112 | 4 | ?? - Points to a 16 or 20 byte section? | `FileOffset7` |
+| 88 | 4 | Memory Pointer to the team's players | `PlayersAddress` |  
+| 92 | 4 | Memory Pointer to the team logo `ImageInfo` | `LogoAddress` |  
+| 96 | 4 | Memory Pointer to a reduced size team logo `ImageInfo` | `Logo30Address` |  
+| 100 | 4 | Memory Pointer to the team name `ImageInfo` used for selection | `NameAddress` |
+| 104 | 4 | Memory Pointer to the selected team name `ImageInfo` used for selection | `SelectedNameAddress` |
+| 108 | 4 | Always 0 | `Reserved2` |
+| 112 | 4 | Memory Pointer to a collection of `ImageInfo` used on the loading screen | `LoadingScreenImagesAddress` |
 
-## Readers
-Readers used for NFL Blitz 2k Arcade files are located in the `NFLBlitzDataEditor.Core.Readers.Blitz2kArcade` namespace.  These include
- - `Blitz2kArcadeDataFileReader` (inherits `DataFileReader`): An instance of `IDataFileReader` that is used to read information from the NFL Blitz 2000 Data File
- - `PlayerRecordReader`: An implementation of `IDataFileRecordReader<Player>` that reads a single player record
- - `TeamReacordReader`: An implementation of `IDataFileRecordReader<Team>` that reads a single team record

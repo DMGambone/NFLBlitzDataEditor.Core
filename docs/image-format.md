@@ -26,5 +26,5 @@ The image in the NFL Blitz file are a basic set of pixels in a specific color fo
 | 0c | `RBGA4444` | Red, Green, Blue, and Alpha are stored as a 4 bit value |
 | 0d | `AlphaIntensity16` | Image stores the alpha levels information as a 16-bit value |
 
-## Record Reader
-Currently, a single class, `ImageDataReader`, provides functionality around reading image records from a stream.
+## Reader
+Currently, a single class, `ImageDataReader`, provides functionality around reading image records from a stream and return an instance of `ImageData`.  Note that `ImageData` expands the image's data to 32-bit encode color space.
