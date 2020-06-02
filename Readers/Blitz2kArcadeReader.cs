@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Collections.Generic;
 using System.IO;
 using NFLBlitzDataEditor.Core.Extensions;
 using NFLBlitzDataEditor.Core.Enums;
@@ -102,13 +103,22 @@ namespace NFLBlitzDataEditor.Core.Readers
             team.NameAddress = reader.ReadUInt32();
             team.SelectedNameAddress = reader.ReadUInt32();
             team.Reserved2 = reader.ReadUInt32();
-            team.UnknownAddress = reader.ReadUInt32();
+            team.LoadingScreenImagesAddress = reader.ReadUInt32();
 
             //Resolve the image address
             team.LogoImage = GetImageInfo(team.LogoAddress);
             team.Logo30Image = GetImageInfo(team.Logo30Address);
             team.SelectedNameImage = GetImageInfo(team.SelectedNameAddress);
             team.NameImage = GetImageInfo(team.NameAddress);
+
+            using (Stream loadingScreenImagesReader = OpenMemoryRead(team.LoadingScreenImagesAddress))
+            {
+                //Load the banner images first (max of 2 images)
+                team.LoadingScreenBannerImages = GetImageInfo(loadingScreenImagesReader, 2);
+
+                //Get the team name image next (max of 2 images)
+                team.LoadingScreenTeamNameImages = GetImageInfo(loadingScreenImagesReader, 2);
+            };
 
             return team;
         }

@@ -73,7 +73,7 @@ namespace NFLBlitzDataEditor.Core.Models
         public uint LogoAddress { get; set; }
 
         /// <summary>
-        /// Points to the memory location of the team logo (what is 30?)
+        /// Points to the memory location of the reduced size team logo
         /// </summary>
         public uint Logo30Address { get; set; }
 
@@ -93,9 +93,10 @@ namespace NFLBlitzDataEditor.Core.Models
         public uint Reserved2 { get; set; }
 
         /// <summary>
-        /// Points to a 16 or 20 byte section?
+        /// Pointer to the a list of <see cref="ImageInfo" /> that are the images used on the loading screen for.
+        /// Appears to be 3 in total
         /// </summary>
-        public uint UnknownAddress { get; set; }
+        public uint LoadingScreenImagesAddress { get; set; }
 
         #region Resolved properties
         /// <summary>
@@ -122,6 +123,16 @@ namespace NFLBlitzDataEditor.Core.Models
         /// The team name image when selected
         /// </summary>
         public ImageInfo NameImage { get; set; }
+
+        /// <summary>
+        /// The images used for the banner at the very top of the loading screen
+        /// </summary>
+        public IEnumerable<ImageInfo> LoadingScreenBannerImages { get; set; } = new ImageInfo[0];
+
+        /// <summary>
+        /// The images used for the team name below the banner on the loading screen
+        /// </summary>
+        public IEnumerable<ImageInfo> LoadingScreenTeamNameImages { get; set; } = new ImageInfo[0];
         #endregion
     }
 }

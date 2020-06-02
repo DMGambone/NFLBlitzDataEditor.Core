@@ -186,5 +186,26 @@ namespace NFLBlitzDataEditor.Core.Readers
             BinaryReader reader = new BinaryReader(OpenMemoryRead(address, 36));
             return ReadImageInfo(reader);
         }
+
+        /// <summary>
+        /// Returns a list of <see cref="ImageInfo" /> from a stream of image addresses
+        /// </summary>
+        /// <param name="reader">The reader that will contain the image address</param>
+        /// <param name="count">The number of images to pull from the stream</param>
+        /// <returns>A collection of <see cref="ImageInfo" /> based on the stream of image address. Address value of 0 are skipped.</returns>
+        protected IEnumerable<ImageInfo> GetImageInfo(Stream imageAddressStream, uint count)
+        {
+            IList<ImageInfo> imageInfos = new List<ImageInfo>();
+            BinaryReader imageAddressReader = new BinaryReader(imageAddressStream);
+            while ((count--) > 0)
+            {
+                uint imageAddress = imageAddressReader.ReadUInt32();
+                if (imageAddress == 0)
+                    continue;
+                imageInfos.Add(GetImageInfo(imageAddress));
+            }
+
+            return imageInfos.ToArray();
+        }
     }
 }

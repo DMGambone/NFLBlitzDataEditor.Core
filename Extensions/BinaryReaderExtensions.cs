@@ -23,31 +23,30 @@ namespace NFLBlitzDataEditor.Core.Extensions
         /// Reads the next set of bytes and converts it into a string
         /// </summary>
         /// <param name="reader">The reader to read the bytes from</param>
-        /// <param name="length">The length of the string to read.  -1 indicates if the read should keep reading until the first null terminated is encountered</param>
+        /// <param name="maxLength">The maximum length of the string to read.  -1 indicates if the read should keep reading until the first null terminated is encountered</param>
         /// <param name="bigEndian">Indicates that the string is stored using big-endian encoding.</param>
-        /// <returns>A string containing the data that was read.  Any trailing null characters are trimmed.</returns>
-        public static string ReadAsString(this BinaryReader reader, int length = -1)
+        /// <returns>A string containing the data that was read up to the first null character.</returns>
+        public static string ReadAsString(this BinaryReader reader, int maxLength = -1)
         {
             string value = "";
 
-            for (int idx = 0; idx < length || length == -1; idx += 4)
+            for (int idx = 0; idx < maxLength; idx++)
             {
-                //Read 4 bytes
-                byte[] bytes = reader.ReadBytes(4);
-
-                value += System.Text.Encoding.ASCII.GetString(bytes).Trim((char)0);
-
-                //If we're looking for null-terminated strings of variable size, then break if what was just added to the value
-                // was 4 characters.
-                if(length == -1 
-                    && value.Length % 4 != 0)
+                char nextChar = reader.ReadChar();
+                if (nextChar == (char)0)
+                {
+                    //Consume the rest of the string and toss it away
+                    reader.ReadBytes(maxLength - idx - 1);
                     break;
+                }
+
+                value += nextChar;
             }
 
             return value;
         }
 
-        
+
         /// <summary>
         /// Reads an array of int values
         /// </summary>

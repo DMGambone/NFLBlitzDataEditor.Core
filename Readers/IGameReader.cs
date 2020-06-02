@@ -22,8 +22,9 @@ namespace NFLBlitzDataEditor.Core.Readers
         /// <summary>
         /// Returns an instance of <see cref="ImageInfo" /> containing information about an image referenced by the memory address
         /// </summary>
-        /// <param name="address">The memory address to read the image data from</param>
+        /// <param name="address">The memory address to read the data from</param>
         /// <returns>An instance of <see cref="ImageInfo" />.</returns>
         ImageInfo GetImageInfo(uint address);
+
    }
 }
