@@ -99,16 +99,16 @@ namespace NFLBlitzDataEditor.Core.Readers
             team.PlayersAddress = reader.ReadUInt32();
             team.LogoAddress = reader.ReadUInt32();
             team.Logo30Address = reader.ReadUInt32();
-            team.SelectedNameAddress = reader.ReadUInt32();
             team.NameAddress = reader.ReadUInt32();
+            team.SelectedNameAddress = reader.ReadUInt32();
             team.Reserved2 = reader.ReadUInt32();
             team.UnknownAddress = reader.ReadUInt32();
 
             //Resolve the image address
             team.LogoImage = GetImageInfo(team.LogoAddress);
             team.Logo30Image = GetImageInfo(team.Logo30Address);
-            team.NameImage = GetImageInfo(team.NameAddress);
             team.SelectedNameImage = GetImageInfo(team.SelectedNameAddress);
+            team.NameImage = GetImageInfo(team.NameAddress);
 
             return team;
         }
