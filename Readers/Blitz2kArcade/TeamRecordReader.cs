@@ -27,9 +27,9 @@ namespace NFLBlitzDataEditor.Core.Readers.Blitz2kArcade
             team.LinemenRating = reader.ReadInt16();
             team.DefenseRating = reader.ReadInt16();
             team.SpecialTeamsRating = reader.ReadInt16();
-            team.Reserved1 = reader.ReadInt32();
+            team.Reserved1 = reader.ReadInt16();
             
-            team.DroneBase = reader.ReadInt16();
+            team.DroneBase = reader.ReadInt32();
 
             team.Name = reader.ReadAsString(32);
             team.CityName = reader.ReadAsString(32);
