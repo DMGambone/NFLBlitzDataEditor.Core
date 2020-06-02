@@ -15,6 +15,6 @@ namespace MidwayGamesFS
         /// <summary>
         /// The location of the first partition
         /// </summary>
-        public int FirstPartitionAddress { get; set; }
+        public int FirstPartitionPosition { get; set; }
     }
 }

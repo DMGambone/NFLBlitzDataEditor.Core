@@ -37,7 +37,7 @@ namespace MidwayGamesFS
         protected FileSystemHeader Header;
 
         /// <summary>
-        /// The address to resolve all address from
+        /// The position to resolve all address from
         /// </summary>
         protected int BaseAddress { get; private set; }
 
@@ -83,7 +83,7 @@ namespace MidwayGamesFS
         /// Resolves a sector value into a location within the file system
         /// </summary>
         /// <param name="sector">The sector value to resolve</param>
-        protected virtual int ResolveSectorAddress(int sector)
+        protected virtual int ResolveSectorPosition(int sector)
         {
             return sector * SectorSize;
         }
@@ -92,7 +92,7 @@ namespace MidwayGamesFS
         /// Resolves a block value into a location within the file system
         /// </summary>
         /// <param name="block">The block value to resolve</param>
-        protected virtual int ResolveBlockAddress(int block)
+        protected virtual int ResolveBlockPosition(int block)
         {
             return BaseAddress + (block * BlockSize);
         }
@@ -169,17 +169,17 @@ namespace MidwayGamesFS
             //Read the file size
             int size = reader.ReadInt32() * 4;
             DateTime timestamp = ConvertToTimestamp(reader.ReadInt32());
-            int address = reader.ReadInt32();
+            int position = reader.ReadInt32();
             int checksum = 0;
             if (_extensionsWithCRC.Contains(Path.GetExtension(fileName)))
-                checksum = GetFileChecksum(address);
+                checksum = GetFileChecksum(ResolveBlockPosition(position));
 
             return new FileAllocationTableEntry()
             {
                 Name = fileName,
                 Size = size,
                 Timestamp = timestamp,
-                Position = address,
+                Position = position,
                 Checksum = checksum
             };
         }
@@ -199,7 +199,7 @@ namespace MidwayGamesFS
                     break;
 
                 //Resolve the entry's actual file location
-                entry.Position = ResolveBlockAddress(entry.Position);
+                entry.Position = ResolveBlockPosition(entry.Position);
 
                 entries.Add(entry);
             }
@@ -214,7 +214,7 @@ namespace MidwayGamesFS
         /// <returns>A collection of bytes from that sector</returns>
         protected virtual BinaryReader ReadSector(int sectorIndex)
         {
-            return _fileSystemData.GetReader(ResolveSectorAddress(sectorIndex), SectorSize);
+            return _fileSystemData.GetReader(ResolveSectorPosition(sectorIndex), SectorSize);
         }
 
         /// <summary>
@@ -232,18 +232,18 @@ namespace MidwayGamesFS
                 reader.ReadUInt32();
 
                 //Get the location of the first partion.  The value is a sector index
-                Header.FirstPartitionAddress = ResolveSectorAddress(reader.ReadInt32() + 1);
+                Header.FirstPartitionPosition = ResolveSectorPosition(reader.ReadInt32() + 1);
             }
         }
 
         /// <summary>
         /// Returns the checksum of a file
         /// </summary>
-        /// <param name="address">The location of the file where the checksum would be</param>
+        /// <param name="position">The location of the file where the checksum would be</param>
         /// <returns>The file's CRC checksum.  If it does not use a checksum, 0 is returned</returns>
-        protected int GetFileChecksum(int address)
+        protected int GetFileChecksum(int position)
         {
-            BinaryReader reader = _fileSystemData.GetReader(address, 4);
+            BinaryReader reader = _fileSystemData.GetReader(position, 4);
             return reader.ReadInt32();
         }
 
@@ -254,21 +254,21 @@ namespace MidwayGamesFS
         {
             //TODO: Load in the complete drive header information
 
-            //Set the base address for resolving addresses
-            //Why is the start of the addressing 1,536 before the first partition? 
-            int partitionAddress = Header.FirstPartitionAddress;
-            BaseAddress = partitionAddress - (3 * BlockSize);
+            //Set the base position for resolving positions
+            //Why is the start of the positions 1,536 before the first partition? 
+            int partitionPosition = Header.FirstPartitionPosition;
+            BaseAddress = partitionPosition - (3 * BlockSize);
 
             //Keep reading each partition
             IList<FileSystemPartition> partitions = new List<FileSystemPartition>();
-            while (partitionAddress != 0)
+            while (partitionPosition != 0)
             {
                 //Read the first block of the partition, which contains the allocation table as well as pointer to the next partition
-                BinaryReader reader = _fileSystemData.GetReader(partitionAddress, BlockSize);
+                BinaryReader reader = _fileSystemData.GetReader(partitionPosition, BlockSize);
 
                 FileSystemPartition partition = new FileSystemPartition()
                 {
-                    Address = partitionAddress,
+                    Position = partitionPosition,
                     FileAllocationTable = ReadPartitionFAT(reader)
                 };
 
@@ -287,7 +287,7 @@ namespace MidwayGamesFS
                     break;
 
                 //Go to the next starting partition location.
-                partitionAddress = ResolveBlockAddress(nextPartitionBlock);
+                partitionPosition = ResolveBlockPosition(nextPartitionBlock);
             }
 
             _partitions = partitions;

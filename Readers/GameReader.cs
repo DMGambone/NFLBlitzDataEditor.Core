@@ -8,7 +8,7 @@ using NFLBlitzDataEditor.Core.Enums;
 
 namespace NFLBlitzDataEditor.Core.Readers
 {
-    public class GameReader
+    public abstract class GameReader
         : IGameReader
     {
         /// <summary>
@@ -27,16 +27,6 @@ namespace NFLBlitzDataEditor.Core.Readers
         private readonly GameFileSettings _settings = null;
 
         /// <summary>
-        /// Reader used to read player records from the data file
-        /// </summary>
-        private readonly IDataFileRecordReader<Player> _playerRecordReader;
-
-        /// <summary>
-        /// Reader used to read team records from the data file
-        /// </summary>
-        private readonly IDataFileRecordReader<Team> _teamRecordReader;
-
-        /// <summary>
         /// The version of NFL Blitz of this game file
         /// </summary>
         /// <value></value>
@@ -48,10 +38,8 @@ namespace NFLBlitzDataEditor.Core.Readers
             }
         }
 
-        public GameReader(Stream stream, GameFileSettings settings, IDataFileRecordReader<Player> playerRecordReader, IDataFileRecordReader<Team> teamRecordReader)
+        public GameReader(Stream stream, GameFileSettings settings)
         {
-            _playerRecordReader = playerRecordReader;
-            _teamRecordReader = teamRecordReader;
             _settings = settings;
 
             LoadGameImage(stream);
@@ -72,25 +60,11 @@ namespace NFLBlitzDataEditor.Core.Readers
             MemoryAddressOffset = reader.ReadUInt32();
         }
 
-        /// <summary>
-        /// Reads the next team record from a stream
-        /// </summary>
-        /// <param name="reader">The reader to read the next team record from</param>
-        /// <returns>An instance of <see cref="Team" />.  If there is no team record to be read, null is returned.</returns>
-        protected virtual Team ReadNextTeam(BinaryReader reader)
-        {
-            return _teamRecordReader.Read(reader);
-        }
+        /// <inheritdocs />
+        protected abstract Team ReadNextTeam(BinaryReader reader);
 
-        /// <summary>
-        /// Reads the next player record from a stream
-        /// </summary>
-        /// <param name="reader"></param>
-        /// <returns>An instance of <see cref="Player" />.  If there is no player record to read, null is returned</returns>
-        protected virtual Player ReadNextPlayer(BinaryReader reader)
-        {
-            return _playerRecordReader.Read(reader);
-        }
+        /// <inheritdocs />
+        protected abstract Player ReadNextPlayer(BinaryReader reader);
 
         /// <summary>
         /// Resolves a memory address to an offset within the game image
@@ -114,7 +88,7 @@ namespace NFLBlitzDataEditor.Core.Readers
         {
             IList<Player> players = new List<Player>();
             while (players.Count < _settings.PlayersPerTeam)
-                players.Add(_playerRecordReader.Read(reader));
+                players.Add(ReadNextPlayer(reader));
 
             return players.ToArray();
         }

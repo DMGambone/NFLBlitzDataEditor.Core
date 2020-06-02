@@ -11,9 +11,15 @@ namespace NFLBlitzDataEditor.Core.Readers
     /// Used to read an image from a stream of data
     /// </summary>
     public class ImageDataReader
-        : IDataFileRecordReader<ImageData>
     {
+        /// <summary>
+        /// The numeric identifier all images start with
+        /// </summary>
+        private const uint IMAGE_IDENTIFIER = 0x00008005;
 
+        /// <summary>
+        /// A mapping of 8-bit encoded color to 32-bit encoded color
+        /// </summary>
         private readonly uint[] _rgb332MappingTable;
 
         public ImageDataReader()
@@ -21,6 +27,10 @@ namespace NFLBlitzDataEditor.Core.Readers
             _rgb332MappingTable = GetRGB332Table();
         }
 
+        /// <summary>
+        /// Generates a mapping table of 8-bit 332 color encoding to 32-bit color
+        /// </summary>
+        /// <returns>A collection of uint of the mapped colors</returns>
         private uint[] GetRGB332Table()
         {
             uint[] mappingTable = new uint[256];
@@ -168,6 +178,12 @@ namespace NFLBlitzDataEditor.Core.Readers
             }
         }
 
+        /// <summary>
+        /// Reads data from a <see cref="BinaryReader" /> into ImageData
+        /// </summary>
+        /// <param name="reader">An instance of a <see cref="BinaryReader" /> to read the data from</param>
+        /// <returns>An instance of <see cref="ImageData" /> representing the data.  If the data is not a valid format, null is returned</returns>
+        /// <exception cref="InvalidDataException">Thrown when the reader does not contain valid image data</exception>
         public ImageData Read(BinaryReader reader)
         {
             //Read in the whole image header
@@ -175,17 +191,14 @@ namespace NFLBlitzDataEditor.Core.Readers
 
             //If the first value is not 0x00008005, then it is not a valid image
             if (headerData[0] != 0x00008005)
-                return null;
+                throw new InvalidDataException($"Expected a key of ${ImageDataReader.IMAGE_IDENTIFIER}, but got {headerData[0]}");
 
             //Get the width and height as that's needed to determine how to read the next values
             int width = (int)headerData[4];
             int height = (int)headerData[5];
-            if (width < 1 || width > 256
-                || height < 1 || height > 256)
-                return null;
 
             if (!Enum.IsDefined(typeof(ImageFormat), (int)headerData[9]))
-                return null;
+                throw new InvalidDataException($"Unsupported image format {headerData[9]} provided");
 
             ImageFormat format = (ImageFormat)headerData[9];
             uint[] pixels = ReadImageData(format, width, height, reader);
@@ -205,7 +218,6 @@ namespace NFLBlitzDataEditor.Core.Readers
                 Data = pixels
             };
         }
-
     }
 }
 

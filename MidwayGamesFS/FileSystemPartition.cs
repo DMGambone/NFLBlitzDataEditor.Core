@@ -8,10 +8,10 @@ namespace MidwayGamesFS
     public class FileSystemPartition
     {
         /// <summary>
-        /// The base address of the partition
+        /// The base position of the partition
         /// </summary>
         /// <value></value>
-        public int Address { get; set; }
+        public int Position { get; set; }
 
         /// <summary>
         /// The entries in the partition
