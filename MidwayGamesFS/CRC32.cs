@@ -111,29 +111,27 @@ namespace MidwayGamesFS
         /// <summary>
         /// Validates that a stream contains the proper checksum, which is located at the beginning of the stream
         /// </summary>
+        /// <param name="crc">The crc value to validate</param>
         /// <param name="stream">The stream to validate</param>
         /// <returns>Returns True if the checksum in the stream is valid.</returns>
-        public bool ValidateCRC(Stream stream)
+        public bool ValidateCRC(uint crc, Stream stream)
         {
-            byte[] data = new byte[4];
-            stream.Read(data, 0, data.Length);
-            uint streamCRC = BitConverter.ToUInt32(data);
-
             //Calculate the checksum from the remaining stream
             uint calculatedCRC = Compute(stream);
 
             //Check the two checksums
-            return streamCRC == calculatedCRC;
+            return crc == calculatedCRC;
         }
 
         /// <summary>
         /// Validates that a collection of bytes contains the proper checksum, which is located at the beginning of the collection
         /// </summary>
+        /// <param name="crc">The crc value to validate</param>
         /// <param name="data">The data to validate</param>
         /// <returns>Returns True if the checksum in the data is valid.</returns>
-        public bool ValidateCRC(byte[] data)
+        public bool ValidateCRC(uint crc, byte[] data)
         {
-            return ValidateCRC(new MemoryStream(data));
+            return ValidateCRC(crc, new MemoryStream(data));
         }
     }
 }
