@@ -8,6 +8,6 @@ namespace NFLBlitzDataEditor.Core.Enums
         FieldGoal = 4,
         OnsideKick = 8,
         FakeFieldGoal = 16,
-        FakePung = 32
+        FakePunt = 32
     }
 }
