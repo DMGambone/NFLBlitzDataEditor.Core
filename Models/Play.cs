@@ -28,7 +28,7 @@ namespace NFLBlitzDataEditor.Core.Models
         /// <summary>
         /// The play's initial formation
         /// </summary>
-        public PlayFormation[] Formation { get; set; } = new PlayFormation[6];
+        public PlayStartingPosition[] Formation { get; set; } = new PlayStartingPosition[6];
 
         /// <summary>
         /// The routes executed by individual players

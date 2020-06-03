@@ -207,14 +207,13 @@ namespace NFLBlitzDataEditor.Core.Readers
         /// Reads a single play formation located a memory address specified
         /// </summary>
         /// <param name="address">The memory address where the play formation is located</param>
-        /// <returns>An instance of <see cref="PlayFormation" /></returns>
-        protected virtual PlayFormation ReadPlayFormation(uint address)
+        /// <returns>An instance of <see cref="PlayStartingPosition" /></returns>
+        protected virtual PlayStartingPosition ReadStartingPosition(BinaryReader reader)
         {
-            BinaryReader reader = new BinaryReader(OpenMemoryRead(address, _settings.PlayFormationRecordSize));
-            return new PlayFormation()
+            return new PlayStartingPosition()
             {
-                LineOfScrimmageX = reader.ReadSingle(),
-                LineOfScrimmageZ = reader.ReadSingle(),
+                X = reader.ReadSingle(),
+                Z = reader.ReadSingle(),
                 Sequence = reader.ReadBytes(4),
                 Mode = reader.ReadInt32(),
                 ControlFlag = reader.ReadInt32(),
@@ -225,19 +224,16 @@ namespace NFLBlitzDataEditor.Core.Readers
         /// Reads the complete set of play formations located a memory address specified
         /// </summary>
         /// <param name="address">The memory address where the play formations are located</param>
-        /// <returns>An collection of <see cref="PlayFormation" /></returns>
-        protected virtual PlayFormation[] ReadPlayFormations(uint address)
+        /// <returns>An collection of <see cref="PlayStartingPosition" /></returns>
+        protected virtual PlayStartingPosition[] ReadPlayStartingPositions(uint address)
         {
             int numPlayersPerPlay = _settings.PlayersPerPlay;
-            BinaryReader reader = new BinaryReader(OpenMemoryRead(address, numPlayersPerPlay * 4));
+            BinaryReader reader = new BinaryReader(OpenMemoryRead(address, numPlayersPerPlay * _settings.PlayFormationRecordSize));
 
-            uint[] playFormationAddresses = reader.ReadAsUInt32Array(numPlayersPerPlay);
-            PlayFormation[] formation = new PlayFormation[numPlayersPerPlay];
-            uint playerIndex = 0;
-            foreach (uint playFormationAddress in playFormationAddresses)
+            PlayStartingPosition[] formation = new PlayStartingPosition[numPlayersPerPlay];
+            for (int playerIndex = 0; playerIndex < numPlayersPerPlay; playerIndex++)
             {
-                formation[playerIndex] = ReadPlayFormation(playFormationAddress);
-                playerIndex++;
+                formation[playerIndex] = ReadStartingPosition(reader);
             }
 
             return formation;
@@ -259,7 +255,7 @@ namespace NFLBlitzDataEditor.Core.Readers
                 RouteAddresses = reader.ReadAsUInt32Array(numPlayersPerPlay)
             };
 
-            //play.Formation = ReadPlayFormations(play.PlayFormationAddress);
+            play.Formation = ReadPlayStartingPositions(play.PlayFormationAddress);
 
             //Read in the play routes for each player
             play.Routes = new PlayRoute[numPlayersPerPlay];
@@ -296,11 +292,7 @@ namespace NFLBlitzDataEditor.Core.Readers
             if (entry.PlayDataAddress != 0)
                 entry.PlayData = ReadPlay(entry.PlayDataAddress);
 
-            if (entry.Unknown2 != 0)
-            {
-                Console.WriteLine(ReadString(entry.Unknown2));
-                Play audible = ReadPlay(entry.Unknown2);
-            }
+            PlayRoute p = ReadPlayRoute(entry.Unknown2);
             return entry;
         }
 
