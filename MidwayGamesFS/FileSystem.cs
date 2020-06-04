@@ -104,8 +104,8 @@ namespace MidwayGamesFS
         protected DateTime ConvertToTimestamp(int data)
         {
             //A timestamp is stored in 32 bits, with the time in the first 16 bits and date in the second 16 bits.
-            ushort time = (ushort)(data & 0xff);
-            ushort date = (ushort)((data >> 16) & 0xff);
+            ushort time = (ushort)(data & 0xffff);
+            ushort date = (ushort)((data >> 16) & 0xffff);
 
             //Time: hours, minutes, seconds are stored as 5 bits, 6 bits, 5 bits (respectively)
             int hour = (time >> 11) & 0x1f;
