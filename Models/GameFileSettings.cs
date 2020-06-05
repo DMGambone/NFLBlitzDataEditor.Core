@@ -37,6 +37,16 @@ namespace NFLBlitzDataEditor.Core.Models
         public uint PlaybookAddress { get; set; }
 
         /// <summary>
+        /// The memory address where the 3 team-specific plays are located 
+        /// </summary>
+        public uint TeamPlaysAddress { get; set; }
+
+        /// <summary>
+        /// The number of team-specific plays per team
+        /// </summary>
+        public uint NumberOfTeamSpecificPlays { get; set; } = 3;
+
+        /// <summary>
         /// The number of players involved in a play
         /// </summary>
         public int PlayersPerPlay { get; set; } = 7;
@@ -52,9 +62,39 @@ namespace NFLBlitzDataEditor.Core.Models
         public int PlayRecordSize { get; set; } = 36;
 
         /// <summary>
-        /// The number of plays in the playbook
+        /// The number of offensive plays
         /// </summary>
-        public int NumberOfPlays { get; set; } = 60;
+        /// <value></value>
+        public int NumberOfOffensivePlays { get; set; } = 36;
+
+        /// <summary>
+        /// The number of custom plays
+        /// </summary>
+        /// <value></value>
+        public int NumberOfCustomPlays { get; set; } = 36;
+
+        /// <summary>
+        /// The number of defensive plays
+        /// </summary>
+        /// <value></value>
+        public int NumberOfDefensivePlays { get; set; } = 36;
+
+        /// <summary>
+        /// The size of a single playbook entry
+        /// </summary>
+        public int PlaybookEntrySize { get; set; } = 20;
+
+
+        /// <summary>
+        /// Returns the number of plays in the playbook
+        /// </summary>
+        public int NumberOfPlays
+        {
+            get
+            {
+                return NumberOfOffensivePlays + NumberOfCustomPlays + NumberOfDefensivePlays;
+            }
+        }
 
         /// <summary>
         /// The version of NFL Blitz these settings are for

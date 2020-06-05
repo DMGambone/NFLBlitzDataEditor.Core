@@ -21,12 +21,12 @@ namespace NFLBlitzDataEditor.Core.Models
         /// <summary>
         /// A sequence of pre-snap actions the player is to take
         /// </summary>
-        public byte[] Sequence { get; set; }
+        public uint PreSnapActionsAddress { get; set; }
 
         /// <summary>
-        /// ??
+        /// The role of the player
         /// </summary>
-        public int Mode { get; set; }
+        public int Role { get; set; }
 
         /// <summary>
         /// Pre-snap control flags

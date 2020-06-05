@@ -94,7 +94,6 @@ namespace NFLBlitzDataEditor.Core.Models
 
         /// <summary>
         /// Pointer to the a list of <see cref="ImageInfo" /> that are the images used on the loading screen for.
-        /// Appears to be 3 in total
         /// </summary>
         public uint LoadingScreenImagesAddress { get; set; }
 
@@ -125,12 +124,12 @@ namespace NFLBlitzDataEditor.Core.Models
         public ImageInfo NameImage { get; set; }
 
         /// <summary>
-        /// The images used for the banner at the very top of the loading screen
+        /// The images used for the banner at the very top of the loading screen, up to 2 each
         /// </summary>
         public IEnumerable<ImageInfo> LoadingScreenBannerImages { get; set; } = new ImageInfo[0];
 
         /// <summary>
-        /// The images used for the team name below the banner on the loading screen
+        /// The images used for the team name below the banner on the loading screen, up to 2 each
         /// </summary>
         public IEnumerable<ImageInfo> LoadingScreenTeamNameImages { get; set; } = new ImageInfo[0];
         #endregion

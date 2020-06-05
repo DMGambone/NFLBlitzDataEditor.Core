@@ -21,7 +21,8 @@ namespace NFLBlitzDataEditor.Core.Readers
 
             PlayerRecordSize = 92,
 
-            PlaybookAddress = 0x8023694C
+            PlaybookAddress = 0x80237608,
+            TeamPlaysAddress = 0x80236E60,
         };
 
         public Blitz2kArcadeReader(Stream stream)

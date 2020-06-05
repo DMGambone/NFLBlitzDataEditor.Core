@@ -5,6 +5,15 @@ namespace NFLBlitzDataEditor.Core.Extensions
 {
     public static class BinaryReaderExtensions
     {
+        /// <summary>
+        /// Checks to see if a reader has anything left to read
+        /// </summary>
+        /// <param name="reader">The reader to check for end of stream</param>
+        /// <returns>Returns True if there is no more data to read</returns>
+        public static bool EndOfStream(this BinaryReader reader)
+        {
+            return (reader.BaseStream.Position == reader.BaseStream.Length);
+        }
 
         /// <summary>
         /// Returns a reader used to read a single block of data from another stream

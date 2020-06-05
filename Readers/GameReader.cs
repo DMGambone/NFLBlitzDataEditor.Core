@@ -214,8 +214,8 @@ namespace NFLBlitzDataEditor.Core.Readers
             {
                 X = reader.ReadSingle(),
                 Z = reader.ReadSingle(),
-                Sequence = reader.ReadBytes(4),
-                Mode = reader.ReadInt32(),
+                PreSnapActionsAddress = reader.ReadUInt32(),
+                Role = reader.ReadInt32(),
                 ControlFlag = reader.ReadInt32(),
             };
         }
@@ -272,6 +272,16 @@ namespace NFLBlitzDataEditor.Core.Readers
         /// <summary>
         /// Reads the next playbook entry from the reader
         /// </summary>
+        /// <param name="address">The memory address where the playbook entry is</param>
+        /// <returns>An instance of <see cref="PlaybookEntry" /> if there is an entry there.  Null is returned if there is no entry.</returns>
+        protected virtual PlaybookEntry ReadPlaybookEntry(uint address)
+        {
+            return ReadPlaybookEntry(new BinaryReader(OpenMemoryRead(address, _settings.PlaybookEntrySize)));
+        }
+
+        /// <summary>
+        /// Reads the next playbook entry from the reader
+        /// </summary>
         /// <param name="reader">The reader containing the playbook entries</param>
         /// <returns>An instance of <see cref="PlaybookEntry" /> if there is an entry there.  Null is returned if there is no entry.</returns>
         protected virtual PlaybookEntry ReadPlaybookEntry(BinaryReader reader)
@@ -296,6 +306,21 @@ namespace NFLBlitzDataEditor.Core.Readers
             return entry;
         }
 
+        /// <summary>
+        /// Loads the playbook entries referenced in the reader
+        /// </summary>
+        /// <param name="reader">A reader containing the collection of playbook entry addresses</param>
+        /// <param name="numPlaybookEntries">The number of playbook entries to read from the reader</param>
+        /// <returns>A collection of <see cref="PlaybookEntry" /> of all the playbook entries referenced by the addresses in the reader.</returns>
+        protected virtual IEnumerable<PlaybookEntry> ReadPlaybookEntries(BinaryReader reader, uint numPlaybookEntries)
+        {
+            IList<PlaybookEntry> entries = new List<PlaybookEntry>();
+            while (entries.Count < numPlaybookEntries)
+                entries.Add(ReadPlaybookEntry(reader.ReadUInt32()));
+
+            return entries;
+        }
+
         /// <inheritdocs />
         public virtual Play ReadPlay(uint address)
         {
@@ -307,23 +332,38 @@ namespace NFLBlitzDataEditor.Core.Readers
         /// <inheritdocs />
         public virtual Playbook GetPlaybook()
         {
-            BinaryReader reader = new BinaryReader(OpenMemoryRead(_settings.PlaybookAddress));
+            IEnumerable<PlaybookEntry> offense;
+            IEnumerable<PlaybookEntry> custom;
+            IEnumerable<PlaybookEntry> defense;
 
-            IList<PlaybookEntry> offense = new List<PlaybookEntry>();
-            PlaybookEntry entry = null;
-            while ((entry = ReadPlaybookEntry(reader)) != null)
-                offense.Add(entry);
 
-            IList<PlaybookEntry> defense = new List<PlaybookEntry>();
-            while ((entry = ReadPlaybookEntry(reader)) != null)
-                defense.Add(entry);
+            using (BinaryReader reader = new BinaryReader(OpenMemoryRead(_settings.PlaybookAddress, _settings.NumberOfPlays * 4)))
+            {
+                offense = ReadPlaybookEntries(reader, 36);
+                custom = ReadPlaybookEntries(reader, 9);
+                defense = ReadPlaybookEntries(reader, 18);
+            }
+
+            //Get the team specific plays
+            IList<IEnumerable<PlaybookEntry>> teamPlays = new List<IEnumerable<PlaybookEntry>>();
+            using (BinaryReader reader = new BinaryReader(OpenMemoryRead(_settings.TeamPlaysAddress, (int)(_settings.PlaybookEntrySize * _settings.NumberOfTeamSpecificPlays * _settings.TeamCount))))
+            {
+                while (!reader.EndOfStream())
+                {
+                    PlaybookEntry[] plays = new PlaybookEntry[_settings.NumberOfTeamSpecificPlays];
+                    for(int i = 0; i < _settings.NumberOfTeamSpecificPlays; i++)
+                        plays[i] = ReadPlaybookEntry(reader);
+                    teamPlays.Add(plays);
+                }
+            }
 
             return new Playbook()
             {
                 Offense = offense,
-                Defense = defense
+                Defense = defense,
+                Custom = custom,
+                TeamPlays = teamPlays
             };
-
         }
 
         /// <inheritdocs />
