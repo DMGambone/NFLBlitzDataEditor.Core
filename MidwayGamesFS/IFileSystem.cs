@@ -22,6 +22,19 @@ namespace MidwayGamesFS
         FileAllocationTableEntry GetFileInfo(string fileName);
 
         /// <summary>
+        /// Saves information about a specific file in the file system
+        /// </summary>
+        /// <param name="entry">An instance of <see cref="FileAllocationTableEntry" /> for a specific file.</param>
+        void SaveFileInfo(FileAllocationTableEntry entry);
+
+        /// <summary>
+        /// Reads a specific sector
+        /// </summary>
+        /// <param name="sectorIndex">The sector index to read</param>
+        /// <returns>A collection of bytes from that sector</returns>
+        Stream ReadPhysicalSector(int sectorIndex);
+
+        /// <summary>
         /// Returns a readable stream for a specific file
         /// </summary>
         /// <param name="fileName">The name of the file to open a stream to</param>
