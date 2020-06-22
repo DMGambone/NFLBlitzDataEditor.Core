@@ -378,7 +378,7 @@ namespace MidwayGamesFS
                 
                 byte[] buffer = _fileSystemData.Get(position, size);
                 stream.Write(buffer);
-                remainingSize -= ClusterSize;
+                remainingSize -= buffer.Length;
                 firstCluster = false;
             }
 
