@@ -23,13 +23,8 @@ namespace MidwayGamesFS
         public DateTime Timestamp { get; set; }
 
         /// <summary>
-        /// The location of the file on the physical drive
+        /// The clusters that contain the file
         /// </summary>
-        public int Position { get; set; }
-
-        /// <summary>
-        /// The file's checksum.  If the file does not have a checksum, this is 0
-        /// </summary>
-        public int Checksum {get; set; }
+        public int[] Clusters {get; set; } = new int[0];
     }
 }

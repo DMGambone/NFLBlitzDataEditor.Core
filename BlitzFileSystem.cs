@@ -15,7 +15,7 @@ namespace NFLBlitzDataEditor.Core
         /// </summary>
         /// <param name="data">The raw file system data</param>
         public BlitzFileSystem(IDataBuffer data)
-            : base(data)
+            : base(data, 2)
         {
         }
    }

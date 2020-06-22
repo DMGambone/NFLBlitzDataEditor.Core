@@ -29,7 +29,13 @@ namespace MidwayGamesFS
         /// </summary>
         /// <param name="position">The starting position of the data</param>
         /// <param name="data">The data to write</param>
-        /// <returns>An instance of <see cref="BinaryWriter" /> that can be used to write data.</returns>
         void Set(int position, byte[] data);
+
+        /// <summary>
+        /// Gets a writer that can be used to write to the data
+        /// </summary>
+        /// <param name="position">The starting position of the data</param>
+        /// <returns>An instance of <see cref="BinaryWriter" /> that can be used to write data.</returns>
+        BinaryWriter GetWriter(int position);
     }
 }
