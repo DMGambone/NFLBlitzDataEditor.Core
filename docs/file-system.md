@@ -33,7 +33,7 @@ A single file system partition is broken down into 2 basic sections: File Alloca
 |----------|------|-------------|
 | 0 | 4080 | The partition file allocation table | 
 | 4080 | 12 | Reserved | 
-| 4092 | 4 | The size of the partition | 
+| 4092 | 4 | The location of the next partition, 0 indicating there are no more partitions | 
 | 4096 | variable | The actual file data |
 
 The location of the first partition is defines in the file system header, which is located in the 4th sector (actual address = 0x600).
