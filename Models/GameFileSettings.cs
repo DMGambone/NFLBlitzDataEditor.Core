@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace NFLBlitzDataEditor.Core.Models
 {
     /// <summary>
@@ -34,7 +36,12 @@ namespace NFLBlitzDataEditor.Core.Models
         /// <summary>
         /// The version of NFL Blitz these settings are for
         /// </summary>
-        /// <value></value>
-        public GameVersion Version { get; internal set; }
+        public GameVersion Version { get; set; }
+
+		/// <summary>
+		/// The location of the font tables used in the NFL Blitz.  Each entry is the name of the font 
+		/// and the memory address to that font
+		/// </summary>
+		public IEnumerable<uint> FontTables { get; set; }
     }
 }
